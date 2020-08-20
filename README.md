@@ -6,23 +6,23 @@ Meta analysis of NA-SITB association
 ## Vansteelandt et al. 2012
   N = 32
   
-  Methods: 
+  ### Methods: 
   
-  Variables (scale): 
+  ### Variables (scale): 
 
 ## Bresin et al. 2013
   N = 67
   
-  Methods: 
+  ### Methods: 
   
-  Variables (scale): 
+  ### Variables (scale): 
   
 ## Kuehn et al. In Prep
   N = 60
  
-  Methods: 5 prompts per day over course of 14 days.
+  ### Methods: 5 prompts per day over course of 14 days.
  
-  Variables:
+  ### Variables:
     Negative emotions (sum of 5 items) 
     Sad (0-100)
     Guilt (0-100)
