@@ -20,7 +20,8 @@ Meta analysis of NA-SITB association
 ## Kuehn et al. In Prep
   N = 60
  
-  ### Methods: 5 prompts per day over course of 14 days.
+  ### Methods: 
+    5 prompts per day over course of 14 days plus event-contingent signals.
  
   ### Variables:
     Negative emotions (sum of 5 items) 
