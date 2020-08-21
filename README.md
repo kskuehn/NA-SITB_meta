@@ -45,7 +45,7 @@ Meta analysis of NA-SITB association
     5 prompts per day over course of 14 days plus event-contingent signals.
  
   ### Variables:
-    Negative emotions (sum of 5 items) 
+    Negative emotions (mean of 5 items; 0 - 100) 
     Sad (0-100)
     Guilt (0-100)
     Shame (0-100)
