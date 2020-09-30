@@ -1597,21 +1597,22 @@ sqrt(se.g+se.h)/sd(van$NA.standard,na.rm=T)</code></pre>
 b.2&lt;-van$NA.standard[van$NSSI.pre==0]
 b.3&lt;-sample(b.2, length(a.2))
 cor(a.2,b.3, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.03061699</code></pre>
+<pre><code>## [1] 0.07560289</code></pre>
 </div>
 <div id="consequence-model-comparing-affect-prior-to-nssi-to-affect-post-nssi" class="section level3">
 <h3>Consequence model: comparing affect prior to NSSI to affect post NSSI</h3>
 <pre class="r"><code>e&lt;-mean(van[van$NSSI.post==1,&quot;NA.standard&quot;], na.rm=TRUE)
 
 f&lt;-e-a</code></pre>
-<pre class="r"><code>g&lt;-f/s</code></pre>
+<pre class="r"><code>f/s</code></pre>
+<pre><code>## [1] -0.1057802</code></pre>
 <p>Effect size for consequence model is -0.1057802</p>
 <p>This suggests that NA was -0.1057802 SD units lower following NSSI compared to pre NSSI NA.</p>
 <pre class="r"><code>a.4&lt;-van$NA.standard[van$NSSI.pre==1]
 b.4&lt;-van$NA.standard[van$NSSI.post==1]
 a.5&lt;-sample(a.4, size=length(b.4))
 cor(a.5,b.4, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.02529992</code></pre>
+<pre><code>## [1] -0.6229103</code></pre>
 <pre class="r"><code>g&lt;-sd(van[van$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(van$NSSI.pre==1))
 h&lt;-sd(van[van$NSSI.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -1763,7 +1764,7 @@ c&lt;-a-b</code></pre>
 b.2&lt;-bres$NA.standard[bres$NSSI.pre==0]
 b.3&lt;-sample(b.2, length(a.2))
 cor(a.2,b.3, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.2746222</code></pre>
+<pre><code>## [1] -0.2977967</code></pre>
 <pre class="r"><code>g&lt;-sd(bres[bres$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(bres$NSSI.pre==1))
 h&lt;-sd(bres[bres$NSSI.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -1776,14 +1777,15 @@ sqrt(se.g+se.h)/sd(bres$NA.standard,na.rm=T)</code></pre>
 <pre class="r"><code>d&lt;-mean(bres[bres$NSSI.post==1,&quot;NA.standard&quot;], na.rm=TRUE)
 
 e&lt;-d-a</code></pre>
-<pre class="r"><code>f&lt;-e/s</code></pre>
+<pre class="r"><code>e/s</code></pre>
+<pre><code>## [1] 0.025143</code></pre>
 <p>Effect size for consequence model is 0.025143</p>
 <p>This suggests that NA was .025 SD units higher following NSSI compared to pre NSSI NA.</p>
 <pre class="r"><code>a.4&lt;-bres$NA.standard[bres$NSSI.pre==1]
 b.4&lt;-bres$NA.standard[bres$NSSI.post==1]
 b.5&lt;-sample(b.4, size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.1485407</code></pre>
+<pre><code>## [1] 6.08242e-17</code></pre>
 <pre class="r"><code>g&lt;-sd(bres[bres$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(bres$NSSI.pre==1))
 h&lt;-sd(bres[bres$NSSI.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -1821,7 +1823,7 @@ c&lt;-a-b</code></pre>
 b.2&lt;-bres$NA.standard[bres$NSSIurge.pre==0]
 b.3&lt;-sample(b.2, length(a.2))
 cor(a.2,b.3, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.2635177</code></pre>
+<pre><code>## [1] -0.04736493</code></pre>
 <pre class="r"><code>g&lt;-sd(bres[bres$NSSIurge.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(bres$NSSIurge.pre==1))
 h&lt;-sd(bres[bres$NSSIurge.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -1842,7 +1844,7 @@ e&lt;-d-a</code></pre>
 b.4&lt;-bres$NA.standard[bres$NSSIurge.post==1]
 b.5&lt;-sample(b.4, size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.06135371</code></pre>
+<pre><code>## [1] -0.04700634</code></pre>
 <pre class="r"><code>g&lt;-sd(bres[bres$NSSIurge.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(bres$NSSIurge.pre==1))
 h&lt;-sd(bres[bres$NSSIurge.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -1879,7 +1881,7 @@ c&lt;-a-b</code></pre>
 b.2&lt;-bres$NA.standard[bres$NSSIact.pre==0]
 b.3&lt;-sample(b.2, length(a.2))
 cor(a.2,b.3, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -1.539343e-17</code></pre>
+<pre><code>## [1] -0.1008713</code></pre>
 <pre class="r"><code>g&lt;-sd(bres[bres$NSSIact.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(bres$NSSIact.pre==1))
 h&lt;-sd(bres[bres$NSSIact.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -1898,7 +1900,7 @@ e&lt;-d-a</code></pre>
 b.4&lt;-bres$NA.standard[bres$NSSIact.post==1]
 b.5&lt;-sample(b.4, size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] NA</code></pre>
+<pre><code>## [1] -1</code></pre>
 <p>Effect size for consequence model is -1.029612</p>
 <p>This suggests that NA was -1.03 SD units lower following NSSI behaviors compared to pre NSSI behaviors</p>
 <pre class="r"><code>g&lt;-sd(bres[bres$NSSIact.pre==1,&quot;NA.standard&quot;], na.rm=T)
@@ -1937,7 +1939,7 @@ c&lt;-a-b</code></pre>
 b.2&lt;-bres$NA.standard[bres$suicide.pre==0]
 b.3&lt;-sample(b.2, length(a.2))
 cor(a.2,b.3, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.2855512</code></pre>
+<pre><code>## [1] -0.2144915</code></pre>
 <pre class="r"><code>g&lt;-sd(bres[bres$suicide.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(bres$suicide.pre==1))
 h&lt;-sd(bres[bres$suicide.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -1950,12 +1952,13 @@ sqrt(se.g+se.h)/sd(bres$NA.standard,na.rm=T)</code></pre>
 <pre class="r"><code>d&lt;-mean(bres[bres$suicide.post==1,&quot;NA.standard&quot;], na.rm=TRUE)
 
 e&lt;-d-a</code></pre>
-<pre class="r"><code>f&lt;-e/s</code></pre>
+<pre class="r"><code>e/s</code></pre>
+<pre><code>## [1] 0.2680561</code></pre>
 <pre class="r"><code>a.4&lt;-bres$NA.standard[bres$suicide.pre==1]
 b.4&lt;-bres$NA.standard[bres$suicide.post==1]
 b.5&lt;-sample(b.4, size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 7.034235e-18</code></pre>
+<pre><code>## [1] 0.1982481</code></pre>
 <pre class="r"><code>g&lt;-sd(bres[bres$suicide.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(bres$suicide.pre==1))
 h&lt;-sd(bres[bres$suicide.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -1992,7 +1995,7 @@ c&lt;-a-b</code></pre>
 b.2&lt;-bres$NA.standard[bres$suicideurge.pre==0]
 b.3&lt;-sample(b.2, length(a.2))
 cor(a.2,b.3, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.3032086</code></pre>
+<pre><code>## [1] 0.2457785</code></pre>
 <p>Effect size for antecedent model is 0.1305938</p>
 <p>This suggests that NA was .13 SD units higher on average prior to NSSI urges</p>
 <pre class="r"><code>g&lt;-sd(bres[bres$suicideurge.pre==1,&quot;NA.standard&quot;], na.rm=T)
@@ -2013,7 +2016,7 @@ e&lt;-d-a</code></pre>
 b.4&lt;-bres$NA.standard[bres$suicideurge.post==1]
 b.5&lt;-sample(b.4, size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.295804</code></pre>
+<pre><code>## [1] -4.689908e-18</code></pre>
 <p>Effect size for consequence model is .1847645</p>
 <p>This suggests that NA was .18 SD units higher following suicidal urges compared to pre suicidal urge levels.</p>
 <pre class="r"><code>g&lt;-sd(bres[bres$suicideurge.pre==1,&quot;NA.standard&quot;], na.rm=T)
@@ -2106,7 +2109,7 @@ c&lt;-a-b</code></pre>
 b&lt;-houb$NA.standard[houb$NSSI.pre==0]
 b2&lt;-sample(b, size=972)
 cor(a,b2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.06900173</code></pre>
+<pre><code>## [1] 0.1194136</code></pre>
 <pre class="r"><code>g&lt;-sd(houb[houb$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(houb$NSSI.pre==1))
 h&lt;-sd(houb[houb$NSSI.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -2321,7 +2324,7 @@ e&lt;-d-a</code></pre>
 b&lt;-houb$NA.standard[houb$NSSI.post==1]
 a &lt;- sample(a, size=962)
 cor(a,b, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.02856789</code></pre>
+<pre><code>## [1] -0.634489</code></pre>
 <pre class="r"><code>g&lt;-sd(houb[houb$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(houb$NSSI.pre==1))
 h&lt;-sd(houb[houb$NSSI.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -2414,7 +2417,7 @@ b.2&lt;-muehl$NA.standard[muehl$NSSI.post==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.2890129</code></pre>
+<pre><code>## [1] 0.1128769</code></pre>
 <pre class="r"><code>g&lt;-sd(muehl[muehl$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(muehl$NSSI.pre==1))
 h&lt;-sd(muehl[muehl$NSSI.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -2435,7 +2438,7 @@ e&lt;-d-a</code></pre>
 b=muehl$NA.standard[muehl$NSSI==1]
 a&lt;-sample(a, size=66)
 cor(a,b, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.06919109</code></pre>
+<pre><code>## [1] -0.05823637</code></pre>
 <pre class="r"><code>g&lt;-sd(muehl[muehl$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(muehl$NSSI.pre==1))
 h&lt;-sd(muehl[muehl$NSSI.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -2554,7 +2557,7 @@ b.2=kuehn$NA.standard[kuehn$NSSI.thoughts.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.05721919</code></pre>
+<pre><code>## [1] 0.04568227</code></pre>
 <pre class="r"><code>g&lt;-sd(kuehn[kuehn$NSSI.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kuehn$NSSI.thoughts.pre==1))
 h&lt;-sd(kuehn[kuehn$NSSI.thoughts.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -2577,7 +2580,7 @@ e</code></pre>
 b.4=kuehn$NA.standard[kuehn$NSSI.thoughts.post==1]
 b.5&lt;-sample(b.4,length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.3930935</code></pre>
+<pre><code>## [1] -0.1075566</code></pre>
 <pre class="r"><code>g&lt;-sd(kuehn[kuehn$NSSI.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kuehn$NSSI.thoughts.pre==1))
 h&lt;-sd(kuehn[kuehn$NSSI.thoughts.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -2606,7 +2609,7 @@ b.2=kuehn$NA.standard[kuehn$SIB.30.pre==1]
 a.3&lt;-sample(a.2, size=850)
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.7219611</code></pre>
+<pre><code>## [1] -0.2507404</code></pre>
 <pre class="r"><code>g&lt;-sd(kuehn[kuehn$SIB.30.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kuehn$SIB.30.pre==1))
 h&lt;-sd(kuehn[kuehn$SIB.30.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -2627,7 +2630,7 @@ e&lt;-d-a</code></pre>
 b.4=kuehn$NA.standard[kuehn$SIB.30.post==1]
 b.5&lt;-sample(b.4, size=850)
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] NA</code></pre>
+<pre><code>## [1] 1</code></pre>
 <pre class="r"><code>g&lt;-sd(kuehn[kuehn$SIB.30.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kuehn$SIB.30.pre==1))
 h&lt;-sd(kuehn[kuehn$SIB.30.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -2667,7 +2670,7 @@ c&lt;-a-b</code></pre>
 b.2.1&lt;-kuehn$NA.standard[kuehn$SI.intent.binary.pre==1]
 a.3.1&lt;-sample(a.2.1, size=length(b.2.1))</code></pre>
 <pre class="r"><code>cor(a.3.1,b.2.1, use=&quot;complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.05005061</code></pre>
+<pre><code>## [1] 0.1794617</code></pre>
 <pre class="r"><code>g&lt;-sd(kuehn[kuehn$SI.intent.binary.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kuehn$SI.intent.binary.pre==1))
 h&lt;-sd(kuehn[kuehn$SI.intent.binary.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -2688,7 +2691,7 @@ e&lt;-d-a</code></pre>
 b.4=kuehn$NA.standard[kuehn$SI.intent.binary.post==1]
 b.5&lt;-sample(b.4, size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.2564708</code></pre>
+<pre><code>## [1] -0.3297589</code></pre>
 <pre class="r"><code>g&lt;-sd(kuehn[kuehn$SI.intent.binary.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kuehn$SI.intent.binary.pre==1))
 h&lt;-sd(kuehn[kuehn$SI.intent.binary.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -2773,7 +2776,7 @@ b.2=kaurin_a$NA.standard[kaurin_a$sitb.pre==1]
 a.3&lt;-sample(a.2, size=535)
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.007070649</code></pre>
+<pre><code>## [1] 0.04797378</code></pre>
 <pre class="r"><code>g&lt;-sd(kaurin_a[kaurin_a$sitb.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kaurin_a$sitb.pre==1))
 h&lt;-sd(kaurin_a[kaurin_a$sitb.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -2796,7 +2799,7 @@ e</code></pre>
 b.4=kaurin_a$NA.standard[kaurin_a$sitb.post==1]
 b.5&lt;-sample(b.4,size=535)
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.0277967</code></pre>
+<pre><code>## [1] 0.07536661</code></pre>
 <pre class="r"><code>g&lt;-sd(kaurin_a[kaurin_a$sitb.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kaurin_a$sitb.pre==1))
 h&lt;-sd(kaurin_a[kaurin_a$sitb.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -2881,7 +2884,7 @@ b.2=kaurin_b$NA.standard[kaurin_b$sitb.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.03733373</code></pre>
+<pre><code>## [1] 0.06234022</code></pre>
 <pre class="r"><code>g&lt;-sd(kaurin_b[kaurin_b$sitb.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kaurin_b$sitb.pre==1))
 h&lt;-sd(kaurin_b[kaurin_b$sitb.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -2904,7 +2907,7 @@ e</code></pre>
 b.4=kaurin_b$NA.standard[kaurin_b$sitb.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.002895623</code></pre>
+<pre><code>## [1] 0.04637852</code></pre>
 <pre class="r"><code>g&lt;-sd(kaurin_b[kaurin_b$sitb.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kaurin_b$sitb.pre==1))
 h&lt;-sd(kaurin_b[kaurin_b$sitb.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -2999,7 +3002,7 @@ b.2=evans$NA.standard[evans$suicidal.thoughts.pre==1]
 b.3&lt;-sample(b.2, size=length(a.2))
 
 cor(a.2,b.3, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.008432816</code></pre>
+<pre><code>## [1] 0.1089401</code></pre>
 <pre class="r"><code>g&lt;-sd(evans[evans$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(evans$suicidal.thoughts.pre==1))
 h&lt;-sd(evans[evans$suicidal.thoughts.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3022,7 +3025,7 @@ e</code></pre>
 b.4=evans$NA.standard[evans$suicidal.thoughts.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.02632838</code></pre>
+<pre><code>## [1] -0.02126899</code></pre>
 <pre class="r"><code>g&lt;-sd(evans[evans$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(evans$suicidal.thoughts.pre==1))
 h&lt;-sd(evans[evans$suicidal.thoughts.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -3133,7 +3136,7 @@ b.2=czyz$NA.standard[czyz$NSSI.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.4135407</code></pre>
+<pre><code>## [1] 0.1315805</code></pre>
 <pre class="r"><code>g&lt;-sd(czyz[czyz$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(czyz$NSSI.pre==1))
 h&lt;-sd(czyz[czyz$NSSI.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3156,7 +3159,7 @@ e</code></pre>
 b.4=czyz$NA.standard[czyz$NSSI.post==1]
 a.5&lt;-sample(a.4,size=length(b.4))
 cor(a.5,b.4, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] NA</code></pre>
+<pre><code>## [1] -1</code></pre>
 <pre class="r"><code>g&lt;-sd(czyz[czyz$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(czyz$NSSI.pre==1))
 h&lt;-sd(czyz[czyz$NSSI.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -3189,7 +3192,7 @@ b.2=czyz$NA.standard[czyz$suicidal.thoughts.pre==1]
 a.3&lt;-sample(a.2, size=452)
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.08461124</code></pre>
+<pre><code>## [1] -0.03292606</code></pre>
 <pre class="r"><code>g&lt;-sd(czyz[czyz$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(czyz$suicidal.thoughts.pre==1))
 h&lt;-sd(czyz[czyz$suicidal.thoughts.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3212,7 +3215,7 @@ e</code></pre>
 b.4=czyz$NA.standard[czyz$suicidal.thoughts.post==1]
 a.5&lt;-sample(a.4,size=length(b.4))
 cor(a.5,b.4, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.3511</code></pre>
+<pre><code>## [1] -0.04933021</code></pre>
 <pre class="r"><code>g&lt;-sd(czyz[czyz$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(czyz$suicidal.thoughts.pre==1))
 h&lt;-sd(czyz[czyz$suicidal.thoughts.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3297,7 +3300,7 @@ b.2=san$NA.standard[san$NSSI.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.06931983</code></pre>
+<pre><code>## [1] 0.1676811</code></pre>
 <pre class="r"><code>g&lt;-sd(san[san$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(san$NSSI.pre==1))
 h&lt;-sd(san[san$NSSI.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3320,7 +3323,7 @@ e</code></pre>
 b.4=san$NA.standard[san$NSSI.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.04763167</code></pre>
+<pre><code>## [1] 0.2614121</code></pre>
 <pre class="r"><code>g&lt;-sd(san[san$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(san$NSSI.pre==1))
 h&lt;-sd(san[san$NSSI.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -3406,7 +3409,7 @@ b.2=selby13$NA.standard[selby13$NSSI.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.1920166</code></pre>
+<pre><code>## [1] 0.06338351</code></pre>
 <pre class="r"><code>g&lt;-sd(selby13[selby13$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(selby13$NSSI.pre==1))
 h&lt;-sd(selby13[selby13$NSSI.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3526,7 +3529,7 @@ b.2=selby18$NA.standard[selby18$NSSI.thoughts.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.04269166</code></pre>
+<pre><code>## [1] 0.05976664</code></pre>
 <pre class="r"><code>g&lt;-sd(selby18[selby18$NSSI.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(selby18$NSSI.thoughts.pre==1))
 h&lt;-sd(selby18[selby18$NSSI.thoughts.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3549,7 +3552,7 @@ e</code></pre>
 b.4=selby18$NA.standard[selby18$NSSI.thoughts.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.01846047</code></pre>
+<pre><code>## [1] -0.001586289</code></pre>
 <pre class="r"><code>g&lt;-sd(selby18[selby18$NSSI.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(selby18$NSSI.thoughts.pre==1))
 h&lt;-sd(selby18[selby18$NSSI.thoughts.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -3578,7 +3581,7 @@ b.2=selby18$NA.standard[selby18$NSSI.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.03109117</code></pre>
+<pre><code>## [1] -0.06603444</code></pre>
 <pre class="r"><code>g&lt;-sd(selby18[selby18$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(selby18$NSSI.pre==1))
 h&lt;-sd(selby18[selby18$NSSI.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3601,7 +3604,7 @@ e</code></pre>
 b.4=selby18$NA.standard[selby18$NSSI.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.0921653</code></pre>
+<pre><code>## [1] 0.1762652</code></pre>
 <pre class="r"><code>g&lt;-sd(selby18[selby18$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(selby18$NSSI.pre==1))
 h&lt;-sd(selby18[selby18$NSSI.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -3712,7 +3715,7 @@ b.2=kiekens$NA.standard[kiekens$NSSI.thoughts.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.03010844</code></pre>
+<pre><code>## [1] 0.02893626</code></pre>
 <pre class="r"><code>g&lt;-sd(kiekens[kiekens$NSSI.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kiekens$NSSI.thoughts.pre==1))
 h&lt;-sd(kiekens[kiekens$NSSI.thoughts.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3735,7 +3738,7 @@ e</code></pre>
 b.4=kiekens$NA.standard[kiekens$NSSI.thoughts.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.03465882</code></pre>
+<pre><code>## [1] -0.05970451</code></pre>
 <pre class="r"><code>g&lt;-sd(kiekens[kiekens$NSSI.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kiekens$NSSI.thoughts.pre==1))
 h&lt;-sd(kiekens[kiekens$NSSI.thoughts.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -3764,7 +3767,7 @@ b.2=kiekens$NA.standard[kiekens$NSSI.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.02469119</code></pre>
+<pre><code>## [1] 0.0072341</code></pre>
 <pre class="r"><code>g&lt;-sd(kiekens[kiekens$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kiekens$NSSI.pre==1))
 h&lt;-sd(kiekens[kiekens$NSSI.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3787,7 +3790,7 @@ e</code></pre>
 b.4=kiekens$NA.standard[kiekens$NSSI.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.004923462</code></pre>
+<pre><code>## [1] 0.0276591</code></pre>
 <pre class="r"><code>g&lt;-sd(kiekens[kiekens$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kiekens$NSSI.pre==1))
 h&lt;-sd(kiekens[kiekens$NSSI.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -3816,7 +3819,7 @@ b.2=kiekens$NA.standard[kiekens$suicide.thoughts.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.02621518</code></pre>
+<pre><code>## [1] 0.015606</code></pre>
 <pre class="r"><code>g&lt;-sd(kiekens[kiekens$suicide.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kiekens$suicide.thoughts.pre==1))
 h&lt;-sd(kiekens[kiekens$suicide.thoughts.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3839,7 +3842,7 @@ e</code></pre>
 b.4=kiekens$NA.standard[kiekens$suicide.thoughts.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.144268</code></pre>
+<pre><code>## [1] -0.1106199</code></pre>
 <pre class="r"><code>g&lt;-sd(kiekens[kiekens$suicide.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kiekens$suicide.thoughts.pre==1))
 h&lt;-sd(kiekens[kiekens$suicide.thoughts.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -3934,7 +3937,7 @@ b.2=lear$NA.standard[lear$NSSI.urges.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.05107604</code></pre>
+<pre><code>## [1] -0.03042536</code></pre>
 <pre class="r"><code>g&lt;-sd(lear[lear$NSSI.urges.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(lear$NSSI.urges.pre==1))
 h&lt;-sd(lear[lear$NSSI.urges.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -3957,7 +3960,7 @@ e</code></pre>
 b.4=lear$NA.standard[lear$NSSI.urges.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.08912183</code></pre>
+<pre><code>## [1] -0.0521355</code></pre>
 <pre class="r"><code>g&lt;-sd(lear[lear$NSSI.urges.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(lear$NSSI.urges.pre==1))
 h&lt;-sd(lear[lear$NSSI.urges.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -3987,7 +3990,7 @@ b.2=lear$NA.standard[lear$NSSI.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.09817565</code></pre>
+<pre><code>## [1] -0.03140375</code></pre>
 <pre class="r"><code>g&lt;-sd(lear[lear$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(lear$NSSI.pre==1))
 h&lt;-sd(lear[lear$NSSI.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -4010,7 +4013,7 @@ e</code></pre>
 b.4=lear$NA.standard[lear$NSSI.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.1155269</code></pre>
+<pre><code>## [1] 0.1447372</code></pre>
 <pre class="r"><code>g&lt;-sd(lear[lear$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(lear$NSSI.pre==1))
 h&lt;-sd(lear[lear$NSSI.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -4104,7 +4107,7 @@ b.2=kleiman_a$NA.standard[kleiman_a$suicidal.thoughts.pre==1]
 b.3&lt;-sample(b.2, size=length(a.2))
 
 cor(a.2,b.3, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.002689463</code></pre>
+<pre><code>## [1] 0.01892962</code></pre>
 <pre class="r"><code>g&lt;-sd(kleiman_a[kleiman_a$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kleiman_a$suicidal.thoughts.pre==1))
 h&lt;-sd(kleiman_a[kleiman_a$suicidal.thoughts.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -4127,7 +4130,7 @@ e</code></pre>
 b.4=kleiman_a$NA.standard[kleiman_a$suicidal.thoughts.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.01694779</code></pre>
+<pre><code>## [1] -0.01467447</code></pre>
 <pre class="r"><code>g&lt;-sd(kleiman_a[kleiman_a$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kleiman_a$suicidal.thoughts.pre==1))
 h&lt;-sd(kleiman_a[kleiman_a$suicidal.thoughts.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -4224,7 +4227,7 @@ b.2=kleiman_b$NA.standard[kleiman_b$suicidal.thoughts.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.1815488</code></pre>
+<pre><code>## [1] 0.01445616</code></pre>
 <pre class="r"><code>g&lt;-sd(kleiman_b[kleiman_b$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kleiman_b$suicidal.thoughts.pre==1))
 h&lt;-sd(kleiman_b[kleiman_b$suicidal.thoughts.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -4247,7 +4250,7 @@ e</code></pre>
 b.4=kleiman_b$NA.standard[kleiman_b$suicidal.thoughts.post==1]
 a.5&lt;-sample(a.4,size=length(b.4))
 cor(a.5,b.4, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.01103518</code></pre>
+<pre><code>## [1] -0.009987415</code></pre>
 <pre class="r"><code>g&lt;-sd(kleiman_b[kleiman_b$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(kleiman_b$suicidal.thoughts.pre==1))
 h&lt;-sd(kleiman_b[kleiman_b$suicidal.thoughts.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -4356,7 +4359,7 @@ b.2=wolford$NA.standard[wolford$suicidal.thoughts.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.1710211</code></pre>
+<pre><code>## [1] -0.1318134</code></pre>
 <pre class="r"><code>g&lt;-sd(wolford[wolford$NSSI1==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(wolford$NSSI1==1))
 h&lt;-sd(wolford[wolford$NSSI1==0,&quot;NA.standard&quot;], na.rm=T)
@@ -4381,7 +4384,7 @@ e</code></pre>
 b.4=wolford$NA.standard[wolford$NSSI1==1]
 a.5&lt;-sample(a.4,size=length(b.4))
 cor(a.5,b.4, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] NA</code></pre>
+<pre><code>## [1] 0.8122603</code></pre>
 <pre class="r"><code>g&lt;-sd(wolford[wolford$NSSI1==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(wolford$NSSI1==1))
 h&lt;-sd(wolford[wolford$NSSI.behavior.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -4411,7 +4414,7 @@ b.2=wolford$NA.standard[wolford$suicidal.thoughts.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.04169678</code></pre>
+<pre><code>## [1] 0.04747529</code></pre>
 <pre class="r"><code>g&lt;-sd(wolford[wolford$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(wolford$suicidal.thoughts.pre==1))
 h&lt;-sd(wolford[wolford$suicidal.thoughts.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -4434,7 +4437,7 @@ e</code></pre>
 b.4=wolford$NA.standard[wolford$suicidal.thoughts.post==1]
 a.5&lt;-sample(a.4,size=length(b.4))
 cor(a.5,b.4, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.373642</code></pre>
+<pre><code>## [1] 0.3279304</code></pre>
 <pre class="r"><code>g&lt;-sd(wolford[wolford$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(wolford$suicidal.thoughts.pre==1))
 h&lt;-sd(wolford[wolford$suicidal.thoughts.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -4464,7 +4467,7 @@ b.2=wolford$NA.standard[wolford$suicidal.behavior.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] -0.7152625</code></pre>
+<pre><code>## [1] -0.2258964</code></pre>
 <pre class="r"><code>g&lt;-sd(wolford[wolford$suicidal.behavior.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(wolford$suicidal.behavior.pre==1))
 h&lt;-sd(wolford[wolford$suicidal.behavior.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -4610,7 +4613,7 @@ b.2=armey$NA.standard[armey$NSSI.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.3235336</code></pre>
+<pre><code>## [1] 0.1648971</code></pre>
 <pre class="r"><code>g&lt;-sd(armey[armey$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(armey$NSSI.pre==1))
 h&lt;-sd(armey[armey$NSSI.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -4635,7 +4638,7 @@ e</code></pre>
 b.4=armey$NA.standard[armey$NSSI.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.2166543</code></pre>
+<pre><code>## [1] 1</code></pre>
 <pre class="r"><code>g&lt;-sd(armey[armey$NSSI.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(armey$NSSI.post==1))
 h&lt;-sd(armey[armey$NSSI.post==1,&quot;NA.standard&quot;], na.rm=T)
@@ -4718,7 +4721,7 @@ b.2=husky$NA.standard[husky$suicidal.thoughts.pre==1]
 a.3&lt;-sample(a.2, size=length(b.2))
 
 cor(a.3,b.2, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.1762706</code></pre>
+<pre><code>## [1] 0.0821993</code></pre>
 <pre class="r"><code>g&lt;-sd(husky[husky$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(husky$suicidal.thoughts.pre==1))
 h&lt;-sd(husky[husky$suicidal.thoughts.pre==0,&quot;NA.standard&quot;], na.rm=T)
@@ -4743,7 +4746,7 @@ e</code></pre>
 b.4=husky$NA.standard[husky$suicidal.thoughts.post==1]
 b.5&lt;-sample(b.4,size=length(a.4))
 cor(a.4,b.5, use=&quot;pairwise.complete.obs&quot;)</code></pre>
-<pre><code>## [1] 0.9520778</code></pre>
+<pre><code>## [1] -0.2257026</code></pre>
 <pre class="r"><code>g&lt;-sd(husky[husky$suicidal.thoughts.pre==1,&quot;NA.standard&quot;], na.rm=T)
 se.g&lt;-g/sqrt(length(husky$suicidal.thoughts.pre==1))
 h&lt;-sd(husky[husky$suicidal.thoughts.post==1,&quot;NA.standard&quot;], na.rm=T)
