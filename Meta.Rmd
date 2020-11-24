@@ -431,7 +431,7 @@ data<-read.csv('/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/NA-S
 ## Antecedent Model 
 
 ```{r, warning=FALSE}
-dat.nssi.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Kuehn et al., In Prep"|data$Study=="Selby and Joiner, 2018"|data$Study=="Kiekens et al., 2020"), ]
+dat.nssi.thoughts<-data[which(data$Study=="Andrewes et al., 2017"|data$Study=="Bresin et al. 2013"|data$Study=="Hochard et al., 2015"|data$Study=="Kuehn et al., In Prep"|data$Study=="Selby et al., 2018"|data$Study=="Kiekens et al., 2020"), ]
 
 m.nssi.thoughts.a <- metagen(NSSI.thoughts_A,
                   SP_NSSI.thoughts_A,
@@ -523,7 +523,7 @@ eggers.test(x = m.nssi.urges.c)
 ## Antecedent Model
 
 ```{r}
-dat.nssi.behavior<-data[which(data$Study=="Andrewes et al., 2017"|data$Study=="Armey et al., 2011"|data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Houben et al 2017"|data$Study=="Kiekens et al., 2020"|data$Study=="Kuehn et al., In Prep"|data$Study=="Lear et al., 2019"|data$Study=="Muehlenkamp et al., 2009"|data$Study=="Santangelo et al., 2017"|data$Study=="Selby et al., 2013"|data$Study=="Selby et al., 2018"|data$Study=="Vansteelandt et al. 2012"| data$Study=="Wolford-Clevanger et al., 2019"), ]
+dat.nssi.behavior<-data[which(data$Study=="Andrewes et al., 2017"|data$Study=="Armey et al., 2011"|data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Hochard et al., 2015"|data$Study=="Houben et al 2017"|data$Study=="Kiekens et al., 2020"|data$Study=="Kuehn et al., In Prep"|data$Study=="Lear et al., 2019"|data$Study=="Muehlenkamp et al., 2009"|data$Study=="Santangelo et al., 2017"|data$Study=="Selby et al., 2013"|data$Study=="Selby et al., 2018"|data$Study=="Vansteelandt et al. 2017"| data$Study=="Wolford-Clevenger et al., 2019"), ]
 
 m.nssi.behavior.a <- metagen(NSSI.behaviors_A,
                   SP_NSSI.behaviors_A,
@@ -558,6 +558,17 @@ jpeg('NSSI behavior ant funnel.jpeg',
 myFunnel(m.nssi.ant, main = "NSSI Behavior Antecedent")
 dev.off()
 
+a<-funnel(m.nssi.behavior.a, main="NSSI Behavior Antecedent", xlab="Mean Effect Size",
+contour = c(.95,.975,.99),
+col.contour=c("white", "grey75", "grey60"))
+legend(1.1,0,c("p < 0.05", "p<0.025", "< 0.01"),bty = "n",
+fill=c("white", "grey75", "grey60"))
+
+jpeg('NSSI behavior ant funnel.gray.jpeg',
+     width=8, height=6, units="in", res=300)
+a
+dev.off()
+
 eggers.test(x = m.nssi.behavior.a)
 
 ant.nssi<-find.outliers(m.nssi.behavior.a)
@@ -584,7 +595,7 @@ bubble(ant.nssi.freq,
 ant.nssi.prompt<-metareg(ant.nssi$m.random, X..of.prompts.per.day)
 
 bubble(ant.nssi.prompt,
-       xlab = "X..of.prompts.per.day",
+       xlab = "# of prompts per day", ylab="Effect size", main="Meta-regression of prompts per day by effect size", 
        col.line = "blue",
        studlab = TRUE)
 
@@ -638,7 +649,7 @@ jpeg(file='NSSI behavior.consequence.out.jpeg',
 forest(con.nssi.bhx$m.random, layout="RevMan5", digits.sd=2)
 dev.off()
 
-con.nssi.comp<-metareg(con.nssi.bhx$m.random, Compliance.rate)
+con.nssi.comp<-metareg(con.nssi.bhx$m.random, Compliance)
 
 bubble(con.nssi.comp,
        xlab = "Compliance Rate",
@@ -661,6 +672,7 @@ bubble(con.nssi.prompt,
 
 con.nssi.dur<-metareg(con.nssi.bhx$m.random, Hours.between.prompts)
 
+
 bubble(con.nssi.dur,
        xlab = "X..of.prompts.per.day",
        col.line = "blue",
@@ -678,7 +690,7 @@ BPD.subgroup
 ## Antecedent Model
 
 ```{r, warning=FALSE}
-dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Wolford-Clevanger et al., 2019"), ]
+dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Forkmann et al., 2018"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Salim et al., 2019"|data$Study=="Wolford-Clevenger et al., 2019"), ]
 
 m.suicidal.thoughts.a <- metagen(Suicidal.thoughts_A,
                   SP_Suicidal.thoughts_A,
@@ -758,9 +770,9 @@ dev.off()
 
 funnel(m.suicidal.thoughts.c, xlab="Mean Difference", 
        contour = c(.95,.975,.99),
-       col.contour=c("darkblue","blue","lightblue"))+
+       col.contour=c("white", "grey75", "grey60"))+
     legend(1.4, 0, c("p < 0.05", "p<0.025", "< 0.01"),bty = "n",
-           fill=c("darkblue","blue","lightblue"))
+           fill=c("white", "grey75", "grey60"))
 
 eggers.test(x = m.suicidal.thoughts.c)
 
@@ -823,4 +835,207 @@ m.suicidal.urges.c
 forest(m.suicidal.urges.c, layout="RevMan5", digits.sd=2)
 
 eggers.test(x = m.suicidal.urges.c)
+```
+
+```{r}
+data<-read.csv('/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/kleiman.5.csv')
+```
+
+```{r, warning=FALSE}
+dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Forkmann et al., 2018"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Salim et al., 2019"|data$Study=="Wolford-Clevenger et al., 2019"), ]
+
+m.suicidal.thoughts.a <- metagen(Suicidal.thoughts_A,
+                  SP_Suicidal.thoughts_A,
+                  data = dat.suicidal.thoughts,
+                  studlab = paste(Study),
+                  comb.fixed = FALSE,
+                  comb.random = TRUE,
+                  method.tau = "ML",
+                  hakn = TRUE,
+                  prediction = TRUE,
+                  sm = "MD")
+
+m.suicidal.thoughts.a
+
+ant.sui<-find.outliers(m.suicidal.thoughts.a)
+
+jpeg('Sui Thoughts.antecedent.5.jpeg',
+     width=10, height=6, units="in", res=300)
+forest(ant.sui$m.random, layout="RevMan5", digits.sd=2)
+dev.off()
+```
+
+```{r}
+m.suicidal.thoughts.c <- metagen(Suicidal.thoughts_C,
+                  SP_Suicidal.thoughts_C,
+                  data = dat.suicidal.thoughts,
+                  studlab = paste(Study),
+                  comb.fixed = FALSE,
+                  comb.random = TRUE,
+                  method.tau = "ML",
+                  hakn = TRUE,
+                  prediction = TRUE,
+                  sm = "MD")
+
+m.suicidal.thoughts.c
+
+con.sui<-find.outliers(m.suicidal.thoughts.c)
+
+jpeg('Sui Thoughts.consequence.5.jpeg',
+     width=10, height=6, units="in", res=300)
+forest(m.suicidal.thoughts.c, layout="RevMan5", digits.sd=2)
+dev.off()
+```
+
+```{r}
+data<-read.csv('/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/kleiman.1.5.csv')
+```
+
+```{r, warning=FALSE}
+dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Forkmann et al., 2018"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Salim et al., 2019"|data$Study=="Wolford-Clevenger et al., 2019"), ]
+
+m.suicidal.thoughts.a <- metagen(Suicidal.thoughts_A,
+                  SP_Suicidal.thoughts_A,
+                  data = dat.suicidal.thoughts,
+                  studlab = paste(Study),
+                  comb.fixed = FALSE,
+                  comb.random = TRUE,
+                  method.tau = "ML",
+                  hakn = TRUE,
+                  prediction = TRUE,
+                  sm = "MD")
+
+m.suicidal.thoughts.a
+
+ant.sui<-find.outliers(m.suicidal.thoughts.a)
+
+jpeg('Sui Thoughts.antecedent.1.5.jpeg',
+     width=10, height=6, units="in", res=300)
+forest(ant.sui$m.random, layout="RevMan5", digits.sd=2)
+dev.off()
+```
+
+```{r}
+m.suicidal.thoughts.c <- metagen(Suicidal.thoughts_C,
+                  SP_Suicidal.thoughts_C,
+                  data = dat.suicidal.thoughts,
+                  studlab = paste(Study),
+                  comb.fixed = FALSE,
+                  comb.random = TRUE,
+                  method.tau = "ML",
+                  hakn = TRUE,
+                  prediction = TRUE,
+                  sm = "MD")
+
+m.suicidal.thoughts.c
+
+con.sui<-find.outliers(m.suicidal.thoughts.c)
+
+jpeg('Sui Thoughts.consequence.1.5.jpeg',
+     width=10, height=6, units="in", res=300)
+forest(m.suicidal.thoughts.c, layout="RevMan5", digits.sd=2)
+dev.off()
+```
+
+
+```{r}
+data<-read.csv('/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/kleiman.2.csv')
+```
+
+```{r, warning=FALSE}
+dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Forkmann et al., 2018"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Salim et al., 2019"|data$Study=="Wolford-Clevenger et al., 2019"), ]
+
+m.suicidal.thoughts.a <- metagen(Suicidal.thoughts_A,
+                  SP_Suicidal.thoughts_A,
+                  data = dat.suicidal.thoughts,
+                  studlab = paste(Study),
+                  comb.fixed = FALSE,
+                  comb.random = TRUE,
+                  method.tau = "ML",
+                  hakn = TRUE,
+                  prediction = TRUE,
+                  sm = "MD")
+
+m.suicidal.thoughts.a
+
+ant.sui<-find.outliers(m.suicidal.thoughts.a)
+
+jpeg('Sui Thoughts.antecedent.2.jpeg',
+     width=10, height=6, units="in", res=300)
+forest(ant.sui$m.random, layout="RevMan5", digits.sd=2)
+dev.off()
+```
+
+```{r}
+m.suicidal.thoughts.c <- metagen(Suicidal.thoughts_C,
+                  SP_Suicidal.thoughts_C,
+                  data = dat.suicidal.thoughts,
+                  studlab = paste(Study),
+                  comb.fixed = FALSE,
+                  comb.random = TRUE,
+                  method.tau = "ML",
+                  hakn = TRUE,
+                  prediction = TRUE,
+                  sm = "MD")
+
+m.suicidal.thoughts.c
+
+con.sui<-find.outliers(m.suicidal.thoughts.c)
+
+jpeg('Sui Thoughts.consequence.2.jpeg',
+     width=10, height=6, units="in", res=300)
+forest(m.suicidal.thoughts.c, layout="RevMan5", digits.sd=2)
+dev.off()
+```
+
+```{r}
+data<-read.csv('/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/t+1.csv')
+```
+
+```{r}
+dat.nssi.behavior<-data[which(data$Study=="Andrewes et al., 2017"|data$Study=="Armey et al., 2011"|data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Hochard et al., 2015"|data$Study=="Houben et al 2017"|data$Study=="Kiekens et al., 2020"|data$Study=="Kuehn et al., In Prep"|data$Study=="Lear et al., 2019"|data$Study=="Muehlenkamp et al., 2009"|data$Study=="Santangelo et al., 2017"|data$Study=="Selby et al., 2013"|data$Study=="Selby et al., 2018"|data$Study=="Vansteelandt et al. 2017"| data$Study=="Wolford-Clevenger et al., 2019"), ]
+
+m.nssi.behavior.c <- metagen(NSSI.behaviors_C,
+                  SP_NSSI.behaviors_C,
+                  data = dat.nssi.behavior,
+                  studlab = paste(Study),
+                  comb.fixed = FALSE,
+                  comb.random = TRUE,
+                  method.tau = "ML",
+                  hakn = TRUE,
+                  prediction = TRUE,
+                  sm = "MD")
+
+m.nssi.behavior.c
+
+con.nssi.bhx<-find.outliers(m.nssi.behavior.c)
+
+jpeg(file='NSSI behavior.consequence.out.jpeg',
+     width=10, height=6, units="in", res=300)
+forest(con.nssi.bhx$m.random, layout="RevMan5", digits.sd=2)
+dev.off()
+```
+
+```{r}
+dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Forkmann et al., 2018"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Salim et al., 2019"|data$Study=="Wolford-Clevenger et al., 2019"), ]
+
+m.suicidal.thoughts.c <- metagen(Suicidal.thoughts_C,
+                  SP_Suicidal.thoughts_C,
+                  data = dat.suicidal.thoughts,
+                  studlab = paste(Study),
+                  comb.fixed = FALSE,
+                  comb.random = TRUE,
+                  method.tau = "ML",
+                  hakn = TRUE,
+                  prediction = TRUE,
+                  sm = "MD")
+
+m.suicidal.thoughts.c
+
+con.sui<-find.outliers(m.suicidal.thoughts.c)
+
+jpeg('Sui Thoughts.consequence.t+1.jpeg',
+     width=10, height=6, units="in", res=300)
+forest(m.suicidal.thoughts.c, layout="RevMan5", digits.sd=2)
+dev.off()
 ```
