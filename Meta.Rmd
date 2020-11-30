@@ -573,12 +573,16 @@ eggers.test(x = m.nssi.behavior.a)
 
 ant.nssi<-find.outliers(m.nssi.behavior.a)
 
+ant.nssi
+
 jpeg(file='NSSI behavior.ant.out.jpeg',
      width=10, height=6, units="in", res=300)
 forest(ant.nssi$m.random, layout="RevMan5", digits.sd=2)
 dev.off()
 
-ant.nssi.comp<-metareg(ant.nssi$m.random, Compliance.rate)
+ant.nssi.comp<-metareg(ant.nssi$m.random, Compliance)
+
+ant.nssi.comp
 
 bubble(ant.nssi.comp,
        xlab = "Compliance Rate",
@@ -587,12 +591,16 @@ bubble(ant.nssi.comp,
 
 ant.nssi.freq<-metareg(ant.nssi$m.random, Frequency.of.NSSI.behaviors)
 
+ant.nssi.freq
+
 bubble(ant.nssi.freq,
        xlab = "Frequency of NSSI Behavior",
        col.line = "blue",
        studlab = TRUE)
 
 ant.nssi.prompt<-metareg(ant.nssi$m.random, X..of.prompts.per.day)
+
+ant.nssi.prompt
 
 bubble(ant.nssi.prompt,
        xlab = "# of prompts per day", ylab="Effect size", main="Meta-regression of prompts per day by effect size", 
@@ -601,6 +609,8 @@ bubble(ant.nssi.prompt,
 
 ant.nssi.dur<-metareg(ant.nssi$m.random, Hours.between.prompts)
 
+ant.nssi.dur
+  
 bubble(ant.nssi.dur,
        xlab = "X..of.prompts.per.day",
        col.line = "blue",
@@ -644,12 +654,16 @@ eggers.test(x = m.nssi.behavior.c)
 
 con.nssi.bhx<-find.outliers(m.nssi.behavior.c)
 
+con.nssi.bhx
+
 jpeg(file='NSSI behavior.consequence.out.jpeg',
      width=10, height=6, units="in", res=300)
 forest(con.nssi.bhx$m.random, layout="RevMan5", digits.sd=2)
 dev.off()
 
 con.nssi.comp<-metareg(con.nssi.bhx$m.random, Compliance)
+
+con.nssi.comp
 
 bubble(con.nssi.comp,
        xlab = "Compliance Rate",
@@ -658,12 +672,16 @@ bubble(con.nssi.comp,
 
 con.nssi.freq<-metareg(con.nssi.bhx$m.random, Frequency.of.NSSI.behaviors)
 
+con.nssi.freq
+
 bubble(con.nssi.freq,
        xlab = "Frequency of NSSI Behavior",
        col.line = "blue",
        studlab = TRUE)
 
 con.nssi.prompt<-metareg(con.nssi.bhx$m.random, X..of.prompts.per.day)
+
+con.nssi.prompt
 
 bubble(con.nssi.prompt,
        xlab = "X..of.prompts.per.day",
@@ -672,6 +690,7 @@ bubble(con.nssi.prompt,
 
 con.nssi.dur<-metareg(con.nssi.bhx$m.random, Hours.between.prompts)
 
+con.nssi.dur
 
 bubble(con.nssi.dur,
        xlab = "X..of.prompts.per.day",
@@ -714,7 +733,11 @@ eggers.test(x = m.suicidal.thoughts.a)
 
 ant.sui<-find.outliers(m.suicidal.thoughts.a)
 
-ant.sui.compt<-metareg(ant.sui$m.random, Compliance.rate)
+ant.sui$m.random
+
+ant.sui.compt<-metareg(ant.sui$m.random, Compliance)
+
+ant.sui.compt
 
 bubble(con.sui.compt,
        xlab = "Compliance Rate",
@@ -723,6 +746,8 @@ bubble(con.sui.compt,
 
 ant.sui.freq<-metareg(ant.sui$m.random, Frequency.of.suicidal.thoughts)
 
+ant.sui.freq
+
 bubble(ant.sui.freq,
        xlab = "Frequency of Suicidal Thoughts",
        col.line = "blue",
@@ -730,15 +755,17 @@ bubble(ant.sui.freq,
 
 ant.sui.prompt<-metareg(ant.sui$m.random, X..of.prompts.per.day)
 
+ant.sui.prompt
+
 ant.sui.dur<-metareg(ant.sui$m.random, Hours.between.prompts)
+
+ant.sui.dur
 
 BPD.subgroup<-update.meta(ant.sui$m.random, 
                              byvar=BPD, 
                              comb.random = TRUE, 
                              comb.fixed = FALSE)
 BPD.subgroup
-
-dat.suicidal.thoughts$Published<-c("Yes", "No", "Yes", "No", "No", "Yes", "Yes", "Yes", "No", "Yes", "Yes")
 
 published.subgroup<-update.meta(m.suicidal.thoughts.a, 
                              byvar=Published, 
@@ -776,7 +803,9 @@ funnel(m.suicidal.thoughts.c, xlab="Mean Difference",
 
 eggers.test(x = m.suicidal.thoughts.c)
 
-con.sui.tghts<-metareg(m.suicidal.thoughts.c, Compliance.rate)
+con.sui.tghts<-metareg(m.suicidal.thoughts.c, Compliance)
+
+con.sui.tghts
 
 bubble(con.sui.tghts,
        xlab = "Compliance Rate",
@@ -785,10 +814,26 @@ bubble(con.sui.tghts,
 
 con.sui.tghts<-metareg(m.suicidal.thoughts.c, Frequency.of.suicidal.thoughts)
 
+con.sui.tghts
+
 bubble(con.sui.tghts,
        xlab = "Frequency of Suicidal Thoughts",
        col.line = "blue",
        studlab = TRUE)
+
+con.sui.tghts<-metareg(m.suicidal.thoughts.c, X..of.prompts.per.day)
+
+con.sui.tghts
+
+con.sui.tghts<-metareg(m.suicidal.thoughts.c, Hours.between.prompts)
+
+con.sui.tghts
+
+BPD.subgroup<-update.meta(m.suicidal.thoughts.c, 
+                             byvar=BPD, 
+                             comb.random = TRUE, 
+                             comb.fixed = FALSE)
+BPD.subgroup
 ```
 
 # Suicidal Urges
@@ -909,6 +954,8 @@ m.suicidal.thoughts.a
 
 ant.sui<-find.outliers(m.suicidal.thoughts.a)
 
+ant.sui
+
 jpeg('Sui Thoughts.antecedent.1.5.jpeg',
      width=10, height=6, units="in", res=300)
 forest(ant.sui$m.random, layout="RevMan5", digits.sd=2)
@@ -959,6 +1006,8 @@ m.suicidal.thoughts.a <- metagen(Suicidal.thoughts_A,
 m.suicidal.thoughts.a
 
 ant.sui<-find.outliers(m.suicidal.thoughts.a)
+
+ant.sui$m.random
 
 jpeg('Sui Thoughts.antecedent.2.jpeg',
      width=10, height=6, units="in", res=300)
