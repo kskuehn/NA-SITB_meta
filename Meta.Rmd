@@ -423,7 +423,7 @@ find.outliers = spot.outliers.random = spot.outliers.fixed = function(x, ...){
 # Reading in data
 
 ```{r}
-data<-read.csv('/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/NA-SITB_meta/Data/meta data.csv')
+data<-read.csv('/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/NA-SITB_meta/Data/meta data_nourge.csv')
 ```
 
 # NSSI Thoughts
@@ -431,7 +431,7 @@ data<-read.csv('/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/NA-S
 ## Antecedent Model 
 
 ```{r, warning=FALSE}
-dat.nssi.thoughts<-data[which(data$Study=="Andrewes et al., 2017"|data$Study=="Bresin et al. 2013"|data$Study=="Hochard et al., 2015"|data$Study=="Kuehn et al., In Prep"|data$Study=="Selby et al., 2018"|data$Study=="Kiekens et al., 2020"), ]
+dat.nssi.thoughts<-data[which(data$Study=="Andrewes et al., 2017"|data$Study=="Bresin et al. 2013"|data$Study=="Hochard et al., 2015"|data$Study=="Kiekens et al., 2020"|data$Study=="Kuehn et al., In Prep"|data$Study=="Lear et al., 2019"|data$Study=="Selby et al., 2018"|data$Study=="Victor et al., 2018"), ]
 
 m.nssi.thoughts.a <- metagen(NSSI.thoughts_A,
                   SP_NSSI.thoughts_A,
@@ -472,52 +472,6 @@ forest(m.nssi.thoughts.c, layout="RevMan5", digits.sd=2)
 eggers.test(x = m.nssi.thoughts.c)
 ```
 
-# NSSI Urges
-
-## Antecedent Model
-
-```{r, warning=FALSE}
-dat.nssi.urges<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Victor et al., 2018"|data$Study=="Lear et al., 2019"), ]
-
-m.nssi.urges.a <- metagen(NSSI.urges_A,
-                  SP_NSSI.urges_A,
-                  data = dat.nssi.urges,
-                  studlab = paste(Study),
-                  comb.fixed = FALSE,
-                  comb.random = TRUE,
-                  method.tau = "ML",
-                  hakn = TRUE,
-                  prediction = TRUE,
-                  sm = "MD")
-
-m.nssi.urges.a
-
-forest(m.nssi.urges.a, layout="RevMan5", digits.sd=2)
-
-eggers.test(x = m.nssi.urges.a)
-```
-
-## Consequence Model
-
-```{r, warning=FALSE}
-m.nssi.urges.c <- metagen(NSSI.urges_C,
-                  SP_NSSI.urges_C,
-                  data = dat.nssi.urges,
-                  studlab = paste(Study),
-                  comb.fixed = FALSE,
-                  comb.random = TRUE,
-                  method.tau = "ML",
-                  hakn = TRUE,
-                  prediction = TRUE,
-                  sm = "MD")
-
-m.nssi.urges.c
-
-forest(m.nssi.urges.c, layout="RevMan5", digits.sd=2)
-
-eggers.test(x = m.nssi.urges.c)
-```
-
 # NSSI Behaviors
 
 ## Antecedent Model
@@ -543,7 +497,8 @@ jpeg('NSSI behavior.antecedent.jpeg',
 forest(m.nssi.behavior.a, layout="RevMan5", digits.sd=2)
 dev.off()
 
-m.nssi.ant<-rma(yi= NSSI.behaviors_A, sei=SP_NSSI.behaviors_A, data=dat.nssi.behavior)
+m.nssi.ant<-rma(yi= NSSI.behaviors_A, sei=SP_NSSI.behaviors_A, data=dat.nssi.behavior, method="SMD")
+
 myFunnel <- function(x, ...) {
     funnel(x,
            level=c(90, 95, 99), 
@@ -580,7 +535,7 @@ jpeg(file='NSSI behavior.ant.out.jpeg',
 forest(ant.nssi$m.random, layout="RevMan5", digits.sd=2)
 dev.off()
 
-ant.nssi.comp<-metareg(ant.nssi$m.random, Compliance)
+ant.nssi.comp<-metareg(m.nssi.behavior.a, Compliance)
 
 ant.nssi.comp
 
@@ -589,7 +544,7 @@ bubble(ant.nssi.comp,
        col.line = "blue",
        studlab = TRUE)
 
-ant.nssi.freq<-metareg(ant.nssi$m.random, Frequency.of.NSSI.behaviors)
+ant.nssi.freq<-metareg(m.nssi.behavior.a, Frequency.of.NSSI.behaviors)
 
 ant.nssi.freq
 
@@ -598,7 +553,7 @@ bubble(ant.nssi.freq,
        col.line = "blue",
        studlab = TRUE)
 
-ant.nssi.prompt<-metareg(ant.nssi$m.random, X..of.prompts.per.day)
+ant.nssi.prompt<-metareg(m.nssi.behavior.a, X..of.prompts.per.day)
 
 ant.nssi.prompt
 
@@ -607,7 +562,7 @@ bubble(ant.nssi.prompt,
        col.line = "blue",
        studlab = TRUE)
 
-ant.nssi.dur<-metareg(ant.nssi$m.random, Hours.between.prompts)
+ant.nssi.dur<-metareg(m.nssi.behavior.a, Hours.between.prompts)
 
 ant.nssi.dur
   
@@ -616,11 +571,29 @@ bubble(ant.nssi.dur,
        col.line = "blue",
        studlab = TRUE)
 
-BPD.subgroup<-update.meta(ant.nssi$m.random, 
+ant.nssi.women<-metareg(m.nssi.behavior.a, X..female)
+
+ant.nssi.age<-metareg(m.nssi.behavior.a, Mean.age)
+
+ant.nssi.white<-metareg(m.nssi.behavior.a, X..white)
+
+BPD.subgroup<-update.meta(m.nssi.behavior.a, 
                              byvar=BPD, 
                              comb.random = TRUE, 
                              comb.fixed = FALSE)
 BPD.subgroup
+
+Samp.subgroup<-update.meta(m.nssi.behavior.a, 
+                          byvar=Sampling, 
+                          comb.random = TRUE, 
+                          comb.fixed = FALSE)
+Samp.subgroup
+
+Time.subgroup<-update.meta(m.nssi.behavior.a, 
+                          byvar=Timing, 
+                          comb.random = TRUE, 
+                          comb.fixed = FALSE)
+Time.subgroup
 ```
 
 ## Consequence Model
@@ -661,7 +634,7 @@ jpeg(file='NSSI behavior.consequence.out.jpeg',
 forest(con.nssi.bhx$m.random, layout="RevMan5", digits.sd=2)
 dev.off()
 
-con.nssi.comp<-metareg(con.nssi.bhx$m.random, Compliance)
+con.nssi.comp<-metareg(m.nssi.behavior.c, Compliance)
 
 con.nssi.comp
 
@@ -670,7 +643,7 @@ bubble(con.nssi.comp,
        col.line = "blue",
        studlab = TRUE)
 
-con.nssi.freq<-metareg(con.nssi.bhx$m.random, Frequency.of.NSSI.behaviors)
+con.nssi.freq<-metareg(m.nssi.behavior.c, Frequency.of.NSSI.behaviors)
 
 con.nssi.freq
 
@@ -679,7 +652,7 @@ bubble(con.nssi.freq,
        col.line = "blue",
        studlab = TRUE)
 
-con.nssi.prompt<-metareg(con.nssi.bhx$m.random, X..of.prompts.per.day)
+con.nssi.prompt<-metareg(m.nssi.behavior.c, X..of.prompts.per.day)
 
 con.nssi.prompt
 
@@ -688,7 +661,7 @@ bubble(con.nssi.prompt,
        col.line = "blue",
        studlab = TRUE)
 
-con.nssi.dur<-metareg(con.nssi.bhx$m.random, Hours.between.prompts)
+con.nssi.dur<-metareg(m.nssi.behavior.c, Hours.between.prompts)
 
 con.nssi.dur
 
@@ -697,7 +670,7 @@ bubble(con.nssi.dur,
        col.line = "blue",
        studlab = TRUE)
 
-BPD.subgroup<-update.meta(con.nssi.bhx$m.random, 
+BPD.subgroup<-update.meta(m.nssi.behavior.c, 
                              byvar=BPD, 
                              comb.random = TRUE, 
                              comb.fixed = FALSE)
@@ -709,7 +682,7 @@ BPD.subgroup
 ## Antecedent Model
 
 ```{r, warning=FALSE}
-dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Forkmann et al., 2018"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Salim et al., 2019"|data$Study=="Wolford-Clevenger et al., 2019"), ]
+dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Forkmann et al., 2018"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Salim et al., 2019"|data$Study=="Victor et al., 2018"|data$Study=="Wolford-Clevenger et al., 2019"), ]
 
 m.suicidal.thoughts.a <- metagen(Suicidal.thoughts_A,
                   SP_Suicidal.thoughts_A,
@@ -735,7 +708,7 @@ ant.sui<-find.outliers(m.suicidal.thoughts.a)
 
 ant.sui$m.random
 
-ant.sui.compt<-metareg(ant.sui$m.random, Compliance)
+ant.sui.compt<-metareg(m.suicidal.thoughts.a, Compliance)
 
 ant.sui.compt
 
@@ -744,7 +717,7 @@ bubble(con.sui.compt,
        col.line = "blue",
        studlab = TRUE)
 
-ant.sui.freq<-metareg(ant.sui$m.random, Frequency.of.suicidal.thoughts)
+ant.sui.freq<-metareg(m.suicidal.thoughts.a, Frequency.of.suicidal.thoughts)
 
 ant.sui.freq
 
@@ -753,11 +726,11 @@ bubble(ant.sui.freq,
        col.line = "blue",
        studlab = TRUE)
 
-ant.sui.prompt<-metareg(ant.sui$m.random, X..of.prompts.per.day)
+ant.sui.prompt<-metareg(m.suicidal.thoughts.a, X..of.prompts.per.day)
 
 ant.sui.prompt
 
-ant.sui.dur<-metareg(ant.sui$m.random, Hours.between.prompts)
+ant.sui.dur<-metareg(m.suicidal.thoughts.a, Hours.between.prompts)
 
 ant.sui.dur
 
@@ -772,6 +745,31 @@ published.subgroup<-update.meta(m.suicidal.thoughts.a,
                              comb.random = TRUE, 
                              comb.fixed = FALSE)
 published.subgroup
+
+ant.sui.women<-metareg(m.suicidal.thoughts.a, X..female)
+
+ant.sui.age<-metareg(m.suicidal.thoughts.a, Mean.age)
+
+ant.sui.white<-metareg(m.suicidal.thoughts.a, X..white)
+
+ant.sui.women
+
+ant.sui.white
+
+ant.sui.age
+
+BPD.subgroup<-update.meta(m.suicidal.thoughts.a, byvar=BPD, comb.random = TRUE, comb.fixed = FALSE)
+
+BPD.subgroup
+
+Time.subgroup<-update.meta(m.suicidal.thoughts.a, byvar=Timing, comb.random = TRUE, comb.fixed = FALSE)
+
+Time.subgroup
+
+Samp.subgroup<-update.meta(m.suicidal.thoughts.a, byvar=Sampling,
+comb.random = TRUE, comb.fixed = FALSE)
+
+Samp.subgroup
 ```
 
 ## Consequence Model
@@ -829,65 +827,40 @@ con.sui.tghts<-metareg(m.suicidal.thoughts.c, Hours.between.prompts)
 
 con.sui.tghts
 
-BPD.subgroup<-update.meta(m.suicidal.thoughts.c, 
-                             byvar=BPD, 
-                             comb.random = TRUE, 
-                             comb.fixed = FALSE)
+con.sui.women<-metareg(m.suicidal.thoughts.c, X..female)
+
+con.sui.age<-metareg(m.suicidal.thoughts.c, Mean.age)
+
+con.sui.white<-metareg(m.suicidal.thoughts.c, X..white)
+
+con.sui.women
+
+con.sui.white
+
+con.sui.age
+
+BPD.subgroup<-update.meta(m.suicidal.thoughts.c, byvar=BPD, comb.random = TRUE, comb.fixed = FALSE)
+
 BPD.subgroup
+
+Time.subgroup<-update.meta(m.suicidal.thoughts.c, byvar=Timing, comb.random = TRUE, comb.fixed = FALSE)
+
+Time.subgroup
+
+Samp.subgroup<-update.meta(m.suicidal.thoughts.c, byvar=Sampling,
+comb.random = TRUE, comb.fixed = FALSE)
+
+Samp.subgroup
 ```
 
-# Suicidal Urges
-
-## Antecedent
-
-```{r}
-dat.suicidal.urges<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Victor et al., 2018"), ]
-
-m.suicidal.urges.a <- metagen(Suicidal.urges_A,
-                  SP_Suicidal.urges_A,
-                  data = dat.suicidal.urges,
-                  studlab = paste(Study),
-                  comb.fixed = FALSE,
-                  comb.random = TRUE,
-                  method.tau = "ML",
-                  hakn = TRUE,
-                  prediction = TRUE,
-                  sm = "MD")
-
-m.suicidal.urges.a
-
-forest(m.suicidal.urges.a, layout="RevMan5", digits.sd=2)
-
-eggers.test(x = m.suicidal.urges.a)
-```
-
-## Consequence
-
-```{r}
-m.suicidal.urges.c <- metagen(Suicidal.urges_C,
-                  SP_Suicidal.urges_C,
-                  data = dat.suicidal.urges,
-                  studlab = paste(Study),
-                  comb.fixed = FALSE,
-                  comb.random = TRUE,
-                  method.tau = "ML",
-                  hakn = TRUE,
-                  prediction = TRUE,
-                  sm = "MD")
-
-m.suicidal.urges.c
-
-forest(m.suicidal.urges.c, layout="RevMan5", digits.sd=2)
-
-eggers.test(x = m.suicidal.urges.c)
-```
+## Sensitivity analyses ## 
 
 ```{r}
 data<-read.csv('/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/kleiman.5.csv')
 ```
 
 ```{r, warning=FALSE}
-dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Forkmann et al., 2018"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Salim et al., 2019"|data$Study=="Wolford-Clevenger et al., 2019"), ]
+dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Forkmann et al., 2018"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Salim et al., 2019"|data$Study=="Victor et al., 2018"|data$Study=="Wolford-Clevenger et al., 2019"), ]
 
 m.suicidal.thoughts.a <- metagen(Suicidal.thoughts_A,
                   SP_Suicidal.thoughts_A,
@@ -902,11 +875,9 @@ m.suicidal.thoughts.a <- metagen(Suicidal.thoughts_A,
 
 m.suicidal.thoughts.a
 
-ant.sui<-find.outliers(m.suicidal.thoughts.a)
-
 jpeg('Sui Thoughts.antecedent.5.jpeg',
      width=10, height=6, units="in", res=300)
-forest(ant.sui$m.random, layout="RevMan5", digits.sd=2)
+forest(m.suicidal.thoughts.a, layout="RevMan5", digits.sd=2)
 dev.off()
 ```
 
@@ -923,8 +894,6 @@ m.suicidal.thoughts.c <- metagen(Suicidal.thoughts_C,
                   sm = "MD")
 
 m.suicidal.thoughts.c
-
-con.sui<-find.outliers(m.suicidal.thoughts.c)
 
 jpeg('Sui Thoughts.consequence.5.jpeg',
      width=10, height=6, units="in", res=300)
