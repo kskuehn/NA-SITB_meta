@@ -423,7 +423,7 @@ find.outliers = spot.outliers.random = spot.outliers.fixed = function(x, ...){
 # Reading in data
 
 ```{r}
-data<-read.csv('/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/NA-SITB_meta/Data/meta data_nourge.csv')
+data<-read.csv('/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/NA-SITB_meta/Data/meta data.csv')
 ```
 
 # NSSI Thoughts
@@ -682,7 +682,7 @@ BPD.subgroup
 ## Antecedent Model
 
 ```{r, warning=FALSE}
-dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Forkmann et al., 2018"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Salim et al., 2019"|data$Study=="Victor et al., 2018"|data$Study=="Wolford-Clevenger et al., 2019"), ]
+dat.suicidal.thoughts<-data[which(data$Study=="Bresin et al. 2013"|data$Study=="Czyz et al. 2017"|data$Study=="Forkmann et al., 2018"|data$Study=="Husky et al., 2017"|data$Study=="Kaurin et al., Under Review"|data$Study=="Kaurin et al., 2020"|data$Study=="Kiekens et al., 2020"|data$Study=="Kleiman et al., 2017"|data$Study=="Kleiman et al., 2018"|data$Study=="Kuehn et al., In Prep"|data$Study=="Peters et al., 2020"|data$Study=="Salim et al., 2019"|data$Study=="Victor et al., 2018"|data$Study=="Wolford-Clevenger et al., 2019"), ]
 
 m.suicidal.thoughts.a <- metagen(Suicidal.thoughts_A,
                   SP_Suicidal.thoughts_A,
