@@ -3,9 +3,6 @@ Meta analysis of NA-SITB association
 
 # Files:
 
-## Meta.html: 
-Script to run meta analysis. Works with data/meta data.csv file
-
 ## Meta.Rmd: 
 RMarkdown file to run meta analysis script. 
 
