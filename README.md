@@ -3,13 +3,13 @@ Meta analysis of NA-SITB association
 
 # Files:
 
-## Meta.Rmd: 
-RMarkdown file to run meta analysis script. 
+## processing.Rmd: 
+RMarkdown file for cleaning individual datasets.  
 
-## data/meta data.csv: 
-https://anonymous.4open.science/repository/8ae171ba-8406-4419-a76e-19b03e70f422//Data/meta%20data.csv
+## data/ 
+Data files to run analyses
 
-.csv file with individual study effect sizes used to calcaulate pooled effects
+.csv files with IPD level data used to run antecedent and consequence models 
 
 ## Script to calculate effects from the raw data: 
 https://anonymous.4open.science/repository/8ae171ba-8406-4419-a76e-19b03e70f422//docs/
