@@ -6,6 +6,9 @@ Meta analysis of NA-SITB association
 ## processing.Rmd: 
 RMarkdown file for cleaning individual datasets.  
 
+## Processing and Analysis Scripts.Rmd:
+RMarkdwon file that contains scripts for processing individual data files and main antecedent and consequence analyses. 
+
 ## data/ 
 Data files to run analyses
 
@@ -13,4 +16,7 @@ Data files to run analyses
 
 ## Script to calculate effects from the raw data: 
 https://kskuehn.github.io/NA-SITB_meta/
+
+## Antecedent and Consequence Moderator .R scripts
+R scripts for running moderator analyses. 
  
