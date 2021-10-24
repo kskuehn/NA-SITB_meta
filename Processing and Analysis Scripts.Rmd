@@ -1,0 +1,1660 @@
+---
+title: "Big_model"
+author: "Kevin Kuehn & Jonas Dora"
+date: "7/3/2021"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+  theme: united
+---
+
+### added a few libraries here that I need
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, echo=TRUE)
+options(mc.cores = parallel::detectCores())
+options(scipen=999)
+library(dplyr)
+library(foreign)
+library(anytime)
+library(plyr)
+library(psych)
+library(naniar)
+library(nlme)
+library(DataCombine)
+library(brms)
+library(ggplot2)
+library(cmdstanr)
+library(parallel)
+library(cowplot)
+library(brmstools)
+```
+
+# Standardizing Individual Studies
+
+## Armey et al., 2011
+
+```{r}
+armey_wide<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/Armey2011-MetaAnalysisDataShare.csv")
+
+colnames<-colnames(armey_wide)
+colnames<-colnames[-c(1:2)]
+
+armey <- reshape(armey_wide, direction="long", 
+                 varying=list(c(colnames[1:5]), c(colnames[6:10]),
+                              c(colnames[11:15]), c(colnames[16:20]),
+                              c(colnames[21:25]), c(colnames[26:30]),
+                              c(colnames[31:35]), c(colnames[36:40]),
+                              c(colnames[41:45]), c(colnames[46:50]),
+                              c(colnames[51:55]), c(colnames[56:60]),
+                              c(colnames[61:65]), c(colnames[66:70]),
+                              c(colnames[71:75]), c(colnames[76:80]),
+                              c(colnames[81:85]), c(colnames[86:90]),
+                              c(colnames[91:95]), c(colnames[96:100]),
+                              c(colnames[101:105]), c(colnames[106:110]),
+                              c(colnames[111:115])), 
+                 v.names=c("Date","Afraid","Angry", "AngryatSelf", "Ashamed", "Blameworthy","Bored", "Confused", "Discomfort", "Distressed", "Disgusted", "Guilty", "Hostile", "Irritable","Jittery", "Loathing", "Nervous", "Scared", "Scornful",  "SIB.Drug", "SIB.Pain", "SIB.Prep", "SIB.Severe"))
+
+colnames<-colnames(armey) 
+
+colnames<-colnames[-c(1:4,26)]
+
+armey[colnames] <- sapply(armey[colnames],as.numeric)
+sapply(armey, class)
+
+armey$neg.aff<-rowMeans(armey[,c("Afraid","Angry", "AngryatSelf", "Ashamed", "Blameworthy","Bored", "Confused", "Discomfort", "Distressed", "Disgusted", "Guilty", "Hostile", "Irritable","Jittery", "Loathing", "Nervous", "Scared", "Scornful")], na.rm=TRUE)
+
+armey$NA.standard<-(armey$neg.aff-mean(armey$neg.aff,na.rm=T))/(sd(armey$neg.aff,na.rm=T))
+
+armey$SIB.Severe.2<-armey$SIB.Severe
+
+armey$SIB.Severe.2[is.na(armey$Disgusted)=='FALSE'&is.na(armey$SIB.Severe)=='TRUE']<-0
+armey$NSSI[armey$SIB.Severe.2>0]<-1
+armey$NSSI[armey$SIB.Severe.2==0]<-0
+
+armey<-armey %>% arrange(ID, time)
+```
+
+```{r}
+armey <- armey %>% 
+  dplyr::rename(
+    PID=ID,
+    NSSI_bhx=NSSI
+  )
+
+armey$Study<-1
+
+armey.PID<-c(unique(armey$PID))
+
+armey$PID <- as.character(factor(armey$PID, levels=armey.PID, labels=c(1:35)))
+
+armey$PID<-as.factor(armey$PID)
+
+armey$NA.standard<-as.numeric(scale(armey$neg.aff))
+
+vars<-c("PID", "time", "Study", "NA.standard", "NSSI_bhx")
+
+armey.bhx<-armey[vars]
+```
+
+## Bresin et al. 2013
+
+```{r}
+bres<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/Bresin et al 2013.csv")
+
+bres <- bres %>% 
+  dplyr::rename(
+    PID=subject,
+    time=day,
+    neg.aff = DNA,
+    NSSI_thgts=NSSI,
+    NSSI_bhx=NSSIact,
+    suicidal_thgts=suicide
+  )
+
+bres$NA.standard<-as.numeric(scale(bres$neg.aff))
+
+bres$Study<-2
+
+bres.PID<-c(unique(bres$PID))
+
+labels<-c(36:103)
+
+bres$PID <- as.character(factor(bres$PID, levels=bres.PID, labels=labels))
+
+bres$PID<-as.factor(bres$PID)
+
+vars.nssi.thgts<-c("PID", "time", "Study", "NA.standard", "NSSI_thgts")
+bres.nssi.thgts<-bres[vars.nssi.thgts]
+
+vars.bhx<-c("PID", "time", "Study", "NA.standard", "NSSI_bhx")
+bres.bhx<-bres[vars.bhx]
+
+vars.suicidal.thgts<-c("PID", "time", "Study", "NA.standard", "suicidal_thgts")
+
+bres.suicidal.thgts<-bres[vars.suicidal.thgts]
+```
+
+## Czyz et al. 2017
+
+```{r}
+czyz<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/czyz.Affect Items.csv")
+czyz2<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/czyz_NSSI and SI.csv")
+
+czyz$suicidal.thoughts<-czyz$SIfreq
+czyz$suicidal.thoughts[czyz$SIfreq>0]<-1
+
+czyz2<-ddply(czyz2, .(ID), head, n = 27)
+czyz$NSSI<-czyz2$NSSI
+
+## Standardize NA by calculating a Z-score
+
+Happy<-c("Happy")
+Happy<-czyz[Happy]
+
+Happy_r<-as.data.frame(reverse.code(keys=c(-1), items=c(Happy$Happy)))
+czyz$Happy_r<-Happy_r$`-`
+
+czyz$neg.aff<-rowMeans(czyz[,c('Miserable', 'Angry', 'Happy_r')], na.rm=TRUE)
+
+czyz$NA.standard<-as.numeric(scale(czyz$neg.aff))
+```
+
+```{r}
+czyz <- czyz %>% 
+  dplyr::rename(
+    PID=ID,
+    time=Day,
+    NSSI_bhx=NSSI,
+    suicidal_thgts=suicidal.thoughts
+  )
+
+czyz$Study<-3
+
+czyz.PID<-c(unique(czyz$PID))
+
+labels<-c(104:137)
+
+czyz$PID <- as.character(factor(czyz$PID, levels=czyz.PID, labels=labels))
+
+czyz$PID<-as.factor(czyz$PID)
+
+czyz.bhx<-czyz[vars.bhx]
+
+czyz.suicidal.thgts<-czyz[vars.suicidal.thgts]
+```
+
+## Forkmann et al., 2018
+```{r}
+forkmann<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/data-ambas.csv")
+
+forkmann$NA.standard<-as.numeric(scale(forkmann$neg.emo))
+
+forkmann <- forkmann %>% 
+  dplyr::rename(
+    PID=ID,
+    time=Trigger_counter,
+    suicidal_thgts=si
+  )
+
+forkmann$Study<-4
+
+forkmann.PID<-c(unique(forkmann$PID))
+
+labels<-c(138:211)
+
+forkmann$PID <- as.character(factor(forkmann$PID, levels=forkmann.PID, labels=labels))
+
+forkmann$PID<-as.factor(forkmann$PID)
+
+forkmann.suicidal.thgts<-forkmann[vars.suicidal.thgts]
+```
+
+## Hochard et al., 2015
+
+```{r}
+hochard<-read.spss("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/Hochard et al (2015) diary study data.sav")
+
+hochard<-as.data.frame(hochard)
+
+vars<-c("Gender", "Age", "ID", "Ocassion", "N_SITB", "NightmareOnly", "N_NA", "BDI_score", "SH_History")
+night<-hochard[vars]
+night$time<-2
+
+names(night)[names(night) == "N_SITB"] <- "SITB"
+names(night)[names(night) == "N_NA"] <- "neg.aff"
+
+vars<-c("Gender", "Age", "ID", "Ocassion", "M_SITB", "NightmareOnly", "M_NA", "BDI_score", "SH_History")
+morning<-hochard[vars]
+morning$time<-1
+
+names(morning)[names(morning) == "M_SITB"] <- "SITB"
+names(morning)[names(morning) == "M_NA"] <- "neg.aff"
+
+hochard<-rbind(night,morning)
+
+revalue(hochard$Ocassion, c("D1"="1", "D2"="2", "D3"="3", "D4"="4", "D5"="5"))
+
+hochard$obs<-ave(hochard$ID, hochard$ID, FUN=seq_along)
+
+hochard<-hochard %>% arrange(ID, obs)
+
+hochard$NA.standard<-as.numeric(scale(hochard$neg.aff))
+
+hochard$time<-NULL
+
+hochard <- hochard %>% 
+  dplyr::rename(
+    PID=ID,
+    time=obs,
+    NSSI_thgts=SITB
+  )
+
+hochard$NSSI_bhx<-hochard$NSSI_thgts
+
+hochard$Study<-5
+
+hochard.PID<-c(unique(hochard$PID))
+
+labels<-c(212:283)
+
+hochard$PID <- as.character(factor(hochard$PID, levels=hochard.PID, labels=labels))
+
+hochard$PID<-as.factor(hochard$PID)
+
+hochard.nssi.thgts<-hochard[vars.nssi.thgts]
+hochard.nssi.bhx<-hochard[vars.bhx]
+```
+
+## Houben et al 2017
+
+```{r}
+houb<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/ESM_data_NSSI_MarliesHouben.csv")
+houb <- houb %>% replace_with_na_all(condition = ~.x == 9999)
+
+houb<-houb[!(houb$pp %in% c(15,16,17,25)), ] 
+
+houb$NA.standard<-as.numeric(scale(houb$NA.))
+
+houb <-houb %>% arrange(pp, Beep_number)
+
+houb <- houb %>% 
+  dplyr::rename(
+    PID=pp,
+    time=Beep_number,
+    NSSI_bhx=NSSI
+  )
+
+houb$Study<-6
+
+houben.PID<-c(unique(houb$PID))
+
+labels<-c(284:313)
+
+houb$PID <- as.character(factor(houb$PID, levels=houben.PID, labels=labels))
+
+houb$PID<-as.factor(houb$PID)
+
+houb.nssi.bhx<-houb[vars.bhx]
+```
+
+## Husky et al., 2017
+
+```{r}
+husky<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/EMA. NA and SI. France.csv")
+
+husky <- husky %>% replace_with_na_all(condition = ~.x == -9)
+
+## Standardize NA by calculating a Z-score
+
+husky$neg.aff<-rowMeans(husky[,c("anxious", "hopelessness", "Sadmood")], na.rm=TRUE)
+
+husky$NA.standard<-as.numeric(scale(husky$neg.aff))
+
+husky<-husky %>% arrange(ID, beep)
+
+husky <- husky %>% 
+  dplyr::rename(
+    PID=ID,
+    ts=time,
+    time=beep,
+    suicidal_thgts=recsi
+  )
+
+husky$Study<-7
+
+husky.PID<-c(unique(husky$PID))
+
+labels<-c(314:355)
+
+husky$PID <- as.character(factor(husky$PID, levels=husky.PID, labels=labels))
+
+husky$PID<-as.factor(husky$PID)
+
+husky.suicidal.thgts<-husky[vars.suicidal.thgts]
+```
+
+## Kaurin et al., Under Review
+
+```{r}
+kaurin_a<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/kaurin_a.csv")
+
+kaurin_a$NA.standard<-as.numeric(scale(kaurin_a$na))
+
+kaurin_a <- kaurin_a %>% 
+  dplyr::rename(
+    PID=pID,
+    suicidal_thgts=sitb
+  )
+
+kaurin_a$Study<-8
+
+kaurin_a.PID<-c(unique(kaurin_a$PID))
+
+labels<-c(356:548)
+
+kaurin_a$PID <- as.character(factor(kaurin_a$PID, levels=kaurin_a.PID, labels=labels))
+
+kaurin_a$PID<-as.factor(kaurin_a$PID)
+
+kaurin_a.suicidal.thgts<-kaurin_a[vars.suicidal.thgts]
+```
+
+## Kaurin et al., 2020
+
+```{r}
+kaurin_b<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/kaurin_b.csv")
+
+kaurin_b$NA.standard<-as.numeric(scale(kaurin_b$na))
+
+kaurin_b$sitb[kaurin_b$sitb>0]<-1
+
+kaurin_b <- kaurin_b %>% 
+  dplyr::rename(
+    PID=id,
+    time=days,
+    suicidal_thgts=sitb
+  )
+
+kaurin_b$Study<-9
+
+kaurin_b.PID<-c(unique(kaurin_b$PID))
+
+labels<-c(549:742)
+
+kaurin_b$PID <- as.character(factor(kaurin_b$PID, levels=kaurin_b.PID, labels=labels))
+
+kaurin_b$PID<-as.factor(kaurin_b$PID)
+
+kaurin_b.suicidal.thgts<-kaurin_b[vars.suicidal.thgts]
+```
+
+## Kiekens et al., 2020
+
+```{r}
+kiekens<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/ESMdata_Kevin Kuehn_08092020.csv")
+
+## Standardize NA by calculating a Z-score
+
+kiekens$NA.standard<-as.numeric(scale(kiekens$negaff))
+
+## Descriptive statistics 
+
+kiekens$thought_nssi[kiekens$thought_nssi>0]<-1
+
+kiekens$thought_suicide[kiekens$thought_suicide>0]<-1
+
+kiekens <- kiekens %>% 
+  dplyr::rename(
+    PID=ID,
+    time=beep,
+    NSSI_thgts=thought_nssi,
+    NSSI_bhx=nssi,
+    suicidal_thgts=thought_suicide
+  )
+
+kiekens$Study<-10
+
+kiekens.PID<-c(unique(kiekens$PID))
+
+labels<-c(743:772)
+
+kiekens$PID <- as.character(factor(kiekens$PID, levels=kiekens.PID, labels=labels))
+
+kiekens$PID<-as.factor(kiekens$PID)
+
+kiekens.nssi.thgts<-kiekens[vars.nssi.thgts]
+
+kiekens.bhx<-kiekens[vars.bhx]
+
+kiekens.suicidal.thgts<-kiekens[vars.suicidal.thgts]
+```
+
+## Kleiman et al., 2017
+
+```{r}
+kleiman_a<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/Online_EMA_2020_0917.csv")
+
+## Standardize NA by calculating a Z-score
+
+kleiman_a$neg.aff<-rowMeans(kleiman_a[,c('Anxious', 'Sad', 'Angry', 'Afraid', 'Agitated', 'Hopeless', 'Lonely', 'Burdensome' )], na.rm=TRUE)
+
+kleiman_a$NA.standard<-as.numeric(scale(kleiman_a$neg.aff))
+
+kleiman_a$SI_RESIST_MNT_r<-kleiman_a$SI_RESIST_MNT
+kleiman_a$SI_RESIST_MNT_r[kleiman_a$SI_RESIST_MNT==5]<-1
+kleiman_a$SI_RESIST_MNT_r[kleiman_a$SI_RESIST_MNT==4]<-2
+kleiman_a$SI_RESIST_MNT_r[kleiman_a$SI_RESIST_MNT==3]<-3
+kleiman_a$SI_RESIST_MNT_r[kleiman_a$SI_RESIST_MNT==2]<-4
+kleiman_a$SI_RESIST_MNT_r[kleiman_a$SI_RESIST_MNT==1]<-5
+
+kleiman_a$suicidal.sum<-rowSums(kleiman_a[,c('SI_INTENSE_MNT', 'SI_DESIRE_MNT', 'SI_RESIST_MNT_r')])
+
+CVP <- within(kleiman_a, {
+  suicidal.sum.CWP<-ave(kleiman_a$suicidal.sum, kleiman_a$subject, FUN=function(x) x-mean(x, na.rm=T))
+})
+
+kleiman_a$suicidal.sum.CWP<-CVP$suicidal.sum.CWP
+
+CNP <- within(kleiman_a, {
+  suicidal.sd.CWP<-ave(kleiman_a$suicidal.sum, kleiman_a$subject, FUN=function(x) x-sd(x, na.rm=T))
+})
+
+kleiman_a$suicidal.sd.CWP<-CNP$suicidal.sd.CWP
+
+grpmeans23<-aggregate(kleiman_a$suicidal.sum,list(kleiman_a$subject),sd,na.rm=TRUE)
+names(grpmeans23)<-c("subject","suicidal.sum.sd")
+kleiman_a<-merge(kleiman_a,grpmeans23,by="subject")
+
+kleiman_a$suicidal.thoughts<-NA
+kleiman_a$suicidal.thoughts[kleiman_a$suicidal.sum.CWP>kleiman_a$suicidal.sum.sd]<-1
+kleiman_a$suicidal.thoughts[kleiman_a$suicidal.sum.CWP<=kleiman_a$suicidal.sum.sd]<-0
+
+kleiman_a <- kleiman_a %>% 
+  dplyr::rename(
+    PID=subject,
+    time=ts,
+    suicidal_thgts=suicidal.thoughts
+  )
+
+kleiman_a$Study<-11
+
+kleiman_a.PID<-c(unique(kleiman_a$PID))
+
+labels<-c(773:826)
+
+kleiman_a$PID <- as.character(factor(kleiman_a$PID, levels=kleiman_a.PID, labels=labels))
+
+kleiman_a$PID<-as.factor(kleiman_a$PID)
+
+kleiman_a.suicidal.thgts<-kleiman_a[vars.suicidal.thgts]
+```
+
+## Kleiman et al., 2018
+
+```{r}
+kleiman_b<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/Online_DD_2020_0917.csv")
+
+## Standardize NA by calculating a Z-score
+
+kleiman_b$NA.standard<-as.numeric(scale(kleiman_b$SAD))
+
+kleiman_b$Wish_Live_r<-kleiman_b$Wish_Live
+kleiman_b$Wish_Live_r[kleiman_b$Wish_Live==4]<-1
+kleiman_b$Wish_Live_r[kleiman_b$Wish_Live==3]<-2
+kleiman_b$Wish_Live_r[kleiman_b$Wish_Live==2]<-3
+kleiman_b$Wish_Live_r[kleiman_b$Wish_Live==1]<-4
+
+kleiman_b$suicidal.sum<-rowSums(kleiman_b[,c('Wish_Live_r', 'Wish_Die', 'Desire_Die')])
+
+CVP <- within(kleiman_b, {
+  suicidal.sum.CWP<-ave(kleiman_b$suicidal.sum, kleiman_b$subject, FUN=function(x) x-mean(x, na.rm=T))
+})
+
+kleiman_b$suicidal.sum.CWP<-CVP$suicidal.sum.CWP
+
+CNP <- within(kleiman_b, {
+  suicidal.sd.CWP<-ave(kleiman_b$suicidal.sum, kleiman_b$subject, FUN=function(x) x-sd(x, na.rm=T))
+})
+
+kleiman_b$suicidal.sd.CWP<-CNP$suicidal.sd.CWP
+
+grpmeans23<-aggregate(kleiman_b$suicidal.sum,list(kleiman_b$subject),sd,na.rm=TRUE)
+names(grpmeans23)<-c("subject","suicidal.sum.sd")
+kleiman_b<-merge(kleiman_b,grpmeans23,by="subject")
+
+kleiman_b$suicidal.thoughts<-NA
+kleiman_b$suicidal.thoughts[kleiman_b$suicidal.sum.CWP>kleiman_b$suicidal.sum.sd]<-1
+kleiman_b$suicidal.thoughts[kleiman_b$suicidal.sum.CWP<=kleiman_b$suicidal.sum.sd]<-0
+
+kleiman_b$ts.2<-anytime(kleiman_b$ts)
+
+kleiman_b <- kleiman_b %>% 
+  dplyr::rename(
+    PID=subject,
+    time=ts.2,
+    suicidal_thgts=suicidal.thoughts
+  )
+
+kleiman_b$Study<-12
+
+kleiman_b.PID<-c(unique(kleiman_b$PID))
+
+labels<-c(827:879)
+
+kleiman_b$PID <- as.character(factor(kleiman_b$PID, levels=kleiman_b.PID, labels=labels))
+
+kleiman_b$PID<-as.factor(kleiman_b$PID)
+
+kleiman_b.suicidal.thgts<-kleiman_b[vars.suicidal.thgts]
+```
+
+## Kuehn et al., In Prep
+
+```{r}
+kuehn<-read.csv("/Users/kevinkuehn/ARISE/Cleaning/ARISE EMA.cleaned.csv")
+
+kuehn$NA.standard<-as.numeric(scale(kuehn$neg.emo))
+
+kuehn$NSSI.thoughts<-0
+kuehn$NSSI.thoughts[kuehn$urge.harm.30>0&kuehn$SI.intent.30==0]<-1
+kuehn$NSSI.thoughts[kuehn$urge.harm.30==0&kuehn$SI.intent.30==0]<-0
+kuehn$NSSI.thoughts[is.na(kuehn$STB.yn=="TRUE")]<-NA
+
+kuehn <-kuehn %>% arrange(PID, EMA_Number)
+
+kuehn <- kuehn %>% 
+  dplyr::rename(
+    timepoint=time,
+    time=EMA_Number,
+    NSSI_thgts=NSSI.thoughts,
+    NSSI_bhx=SIB.30,
+    suicidal_thgts=SI.intent.binary
+  )
+
+kuehn$Study<-13
+
+kuehn.PID<-c(unique(kuehn$PID))
+
+labels<-c(880:939)
+
+kuehn$PID <- as.character(factor(kuehn$PID, levels=kuehn.PID, labels=labels))
+
+kuehn$PID<-as.factor(kuehn$PID)
+
+kuehn.nssi.thgts<-kuehn[vars.nssi.thgts]
+
+kuehn.bhx<-kuehn[vars.bhx]
+
+kuehn.suicidal.thgts<-kuehn[vars.suicidal.thgts]
+```
+
+## Lear et al., 2019
+
+```{r}
+lear<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/Lear et al_2019_data for Keuhn MA.csv")
+
+lear <- lear %>% replace_with_na_all(condition = ~.x == 999)
+
+## Standardize NA by calculating a Z-score
+
+lear$NA.standard<-as.numeric(scale(lear$NA.))
+
+lear<-lear %>% arrange(PID, Observation)
+
+lear <- lear %>% 
+  dplyr::rename(
+    time=Observation,
+    NSSI_thgts=SITB_urge,
+    NSSI_bhx=SITB_beh,
+  )
+
+lear$Study<-14
+
+lear.PID<-c(unique(lear$PID))
+
+labels<-c(940:986)
+
+lear$PID <- as.character(factor(lear$PID, levels=lear.PID, labels=labels))
+
+lear$PID<-as.factor(lear$PID)
+
+lear.nssi.thgts<-lear[vars.nssi.thgts]
+
+lear.bhx<-lear[vars.bhx]
+```
+
+## Muehlenkamp et al., 2009
+
+```{r}
+muehl<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/EMA NSSI_Muehlenkamp.csv")
+
+muehl <- muehl %>% replace_with_na_all(condition = ~.x == 999)
+
+muehl$NA.standard<-as.numeric(scale(muehl$PANASNEG))
+
+muehl$NSSI<-0
+
+muehl$NSSI[muehl$cutself==TRUE|muehl$scratchs==TRUE|muehl$burnself==TRUE|muehl$hitself==TRUE|muehl$banghead==TRUE]<-1
+
+muehl <-muehl %>% arrange(id, BeepNum)
+
+muehl <- muehl %>% 
+  dplyr::rename(
+    PID=id,
+    time=BeepNum,
+    NSSI_bhx=NSSI,
+  )
+
+muehl$Study<-15
+
+muehl.PID<-c(unique(muehl$PID))
+
+labels<-c(987:1118)
+
+muehl$PID <- as.character(factor(muehl$PID, levels=muehl.PID, labels=labels))
+
+muehl$PID<-as.factor(muehl$PID)
+
+muehl.bhx<-muehl[vars.bhx]
+```
+
+## Peters et al., 2020
+
+```{r}
+evans<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/Evans_EMA data_shared.csv")
+
+evans<-evans[!(evans$ID.1 %in% c(33, NA)), ]
+
+evans<-evans %>% dplyr::group_by(ID.1) %>% dplyr::mutate(obs = row_number())
+
+evans$suicidal.thoughts<-NA
+evans$suicidal.thoughts[evans$sui>0]<-1
+evans$suicidal.thoughts[evans$sui==0]<-0
+
+## Standardize NA by calculating a Z-score
+
+evans$neg.aff<-rowMeans(evans[,c('dep', 'irri')], na.rm=TRUE)
+
+evans$NA.standard<-as.numeric(scale(evans$neg.aff))
+
+evans<-evans %>% arrange(ID.1, Date)
+
+evans <- evans %>% 
+  dplyr::rename(
+    PID=ID.1,
+    time=Date,
+    suicidal_thgts=suicidal.thoughts,
+  )
+
+evans$Study<-16
+
+evans.PID<-c(unique(evans$PID))
+
+labels<-c(1119:1157)
+
+evans$PID <- as.character(factor(evans$PID, levels=evans.PID, labels=labels))
+
+evans$PID<-as.factor(evans$PID)
+
+evans.suicidal.thgts<-evans[vars.suicidal.thgts]
+```
+
+## Salim et al., 2019
+
+```{r}
+salim<-read.spss("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/Data for Kevin.sav")
+
+salim$NA.standard<-as.numeric(scale(salim$PHQ))
+
+salim$SBQ_bin<-salim$SBQ
+salim$SBQ_bin[salim$SBQ>0]<-1
+
+salim<-as.data.frame(salim)
+
+salim<-salim %>% arrange(ID, Observation)
+
+salim <- salim %>% 
+  dplyr::rename(
+    PID=ID,
+    time=Observation,
+    suicidal_thgts=SBQ_bin,
+  )
+
+salim$Study<-17
+
+salim.PID<-c(unique(salim$PID))
+
+labels<-c(1158:1251)
+
+salim$PID <- as.character(factor(salim$PID, levels=salim.PID, labels=labels))
+
+salim$PID<-as.factor(salim$PID)
+
+salim.suicidal.thgts<-salim[vars.suicidal.thgts]
+```
+
+## Santangelo et al., 2017
+
+```{r}
+san<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/Santangelo.csv")
+
+san$NSSI<-NA
+san$NSSI[san$svv=="ja"]<-1
+san$NSSI[san$svv=="nein"]<-0
+
+san$NA.standard<-as.numeric(scale(san$affekt))
+
+san<-san %>% arrange(id, mzp)
+
+san <- san %>% 
+  dplyr::rename(
+    PID=id,
+    time=mzp,
+    NSSI_bhx=NSSI,
+  )
+
+san$Study<-18
+
+san.PID<-c(unique(san$PID))
+
+labels<-c(1252:1324)
+
+san$PID <- as.character(factor(san$PID, levels=san.PID, labels=labels))
+
+san$PID<-as.factor(san$PID)
+
+san.bhx<-san[vars.bhx]
+```
+
+## Selby et al., 2013
+
+```{r}
+selby13<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/EMA NSSI 2013 Kevin.csv")
+
+selby13$neg.aff<-rowMeans(selby13[,c('ANGRY', 'WORRIED', 'SAD', 'ASHAMED', 'NUMB')], na.rm=TRUE)
+
+selby13$NA.standard<-as.numeric(scale(selby13$neg.aff))
+
+selby13<-selby13 %>% arrange(ID, DAY)
+
+selby13 <- selby13 %>% 
+  dplyr::rename(
+    PID=ID,
+    time=DAY,
+    NSSI_bhx=NSSI,
+  )
+
+selby13$Study<-19
+
+selby13.PID<-c(unique(selby13$PID))
+
+labels<-c(1325:1371)
+
+selby13$PID <- as.character(factor(selby13$PID, levels=selby13.PID, labels=labels))
+
+selby13$PID<-as.factor(selby13$PID)
+
+selby13.bhx<-selby13[vars.bhx]
+```
+
+## Selby et al., 2018
+
+```{r}
+selby18<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/NSSI EMA 2018 Kevin.csv")
+
+## Standardize NA by calculating a Z-score
+
+selby18$neg.aff<-rowMeans(selby18[,c('OverwhelmedNow', 'Sadnow', 'NumbNow', 'AfraidNow', 'GuiltyNow', 'EmptyNow', 'FrustratedNow', 'HurtRejNow', 'AshamedNow')], na.rm=TRUE)
+
+selby18$NA.standard<-as.numeric(scale(selby18$neg.aff))
+
+selby18<-selby18 %>% arrange(UserID, EntryNum)
+
+selby18 <- selby18 %>% 
+  dplyr::rename(
+    PID=UserID,
+    time=EntryNum,
+    NSSI_thgts=NSSIThoughts, 
+    NSSI_bhx=NSSI_bx,
+  )
+
+selby18$Study<-20
+
+selby18.PID<-c(unique(selby18$PID))
+
+labels<-c(1325:1371)
+
+selby18$PID <- as.character(factor(selby18$PID, levels=selby18.PID, labels=labels))
+
+selby18$PID<-as.factor(selby18$PID)
+
+selby18.nssi.thgts<-selby18[vars.nssi.thgts]
+
+selby18.bhx<-selby18[vars.bhx]
+```
+
+## Vansteelandt et al. 2017
+
+```{r}
+van<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/2020 data meta analysis Vansteelandt.csv")
+
+van$NA.standard<-as.numeric(scale(van$NA.))
+
+van<-van %>% arrange(pid, obs)
+
+van <- van %>% 
+  dplyr::rename(
+    PID=pid,
+    time=obs,
+    NSSI_bhx=NSSI,
+  )
+
+van$Study<-21
+
+van.PID<-c(unique(van$PID))
+
+labels<-c(1372:1403)
+
+van$PID <- as.character(factor(van$PID, levels=van.PID, labels=labels))
+
+van$PID<-as.factor(van$PID)
+
+van.bhx<-van[vars.bhx]
+```
+
+## Wolford-Clevenger et al., 2019
+
+```{r}
+wolford<-read.csv("/Users/kevinkuehn/Documents/Writing/Kuehn et al. Psych Bull/Data/Individual study data/Level 1_meta analysis.csv")
+
+wolford$ang<-rowSums(wolford[18:25],na.rm=FALSE)
+
+wolford$neg.aff<-rowMeans(wolford[,c('dep', 'ang')], na.rm=TRUE)
+
+wolford$NA.standard<-as.numeric(scale(wolford$neg.aff))
+
+wolford<-wolford %>% arrange(ID, day)
+
+wolford <- wolford %>% 
+  dplyr::rename(
+    PID=ID,
+    time=day,
+    NSSI_bhx=NSSI1,
+    suicidal_thgts=sidich
+  )
+
+wolford$Study<-22
+
+wolford.PID<-c(unique(wolford$PID))
+
+labels<-c(1404:1609)
+
+wolford$PID <- as.character(factor(wolford$PID, levels=wolford.PID, labels=labels))
+
+wolford$PID<-as.factor(wolford$PID)
+
+wolford.bhx<-wolford[vars.bhx]
+
+wolford.suicidal.thgts<-wolford[vars.suicidal.thgts]
+```
+
+# Calculation of Effects
+
+##  NSSI Thoughts
+
+```{r}
+data.nssi.thgts <- read.table("data.nssi.thgts.csv", row.names = NULL, header = T, sep = ",", na.strings=c("","NA"))
+
+###
+# ANTECEDENT
+###
+
+data.nssi.thgts$PID<-as.numeric(data.nssi.thgts$PID)
+
+data.nssi.thgts$Study <- as.factor(as.character(data.nssi.thgts$Study))
+levels(data.nssi.thgts$Study) <- c("Kiekens et al., 2020", "Kuehn et al., in Prep", "Lear et al., 2019", "Bresin et al., 2013", "Selby et al., 2018", "Hochard et al., 2015")
+
+### need to turn this into a factor before fitting model!
+
+data.nssi.thgts$NSSI_thgts <- as.factor(as.character(data.nssi.thgts$NSSI_thgts))
+
+### weakly regularizing prior on fixed main effect
+
+prior <- c(set_prior("normal(0, 1)", class = "b", coef = "Intercept"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "NSSI_thgts1"), 
+                  set_prior("student_t(3,0,2.5)", class="sd"),
+                  set_prior("student_t(3,0,2.5", class="sigma"))
+
+model_nssi_thgts_antecedent <-brm(NA.standard.CWP.lag ~ 0 + Intercept + NSSI_thgts + ( 0 + Intercept | Study) + ( 0 + Intercept | Study:PID) + ( 0 + NSSI_thgts | Study) + ( 0 + NSSI_thgts | Study:PID), prior=prior, data=data.nssi.thgts, control = list(adapt_delta = 0.99, max_treedepth=15),
+              sample_prior = TRUE, iter = 3000, chains = 4, backend = "cmdstanr", threads = threading(3))
+
+summary(model_nssi_thgts_antecedent)
+
+### Rhats looking good, so do effective sample sizes
+
+pp_check(model_nssi_thgts_antecedent)
+
+### posterior predictive check indicates that our posterior predictive distribution is slightly more narrow than expected;
+### I'm not too worried about this as it still looks like the kind of distribution we'd expect from a model with a continuous outcome
+
+### long code, but will need this in a second for the forest plot
+
+get_grouping <- function(model, grouping){
+  
+  if (is.na(grouping)) {
+    out <- unique(model$ranef$group)[1]
+    # Message if automatically using one of many grouping factors
+    if (length(unique(model$ranef$group)) > 1) {
+      msg <- paste("Using", out, "as grouping factor. Change with 'grouping' argument.")
+      message(msg)
+    }
+  } else { out <- grouping }
+  
+  out
+}
+
+forest <- function(model,
+                   grouping = NA,
+                   pars = NA,
+                   level = .95,
+                   av_name = "Average",
+                   sort = TRUE,
+                   show_data = FALSE,
+                   col_ridge = NA,
+                   fill_ridge = "grey75",
+                   density = TRUE,
+                   text = TRUE,
+                   rel_min_height = .01,
+                   scale = 0.9,
+                   digits = 2,
+                   theme_forest = TRUE) {
+  
+  
+  # Requires the ggridges package
+  if (!requireNamespace("ggridges", quietly = TRUE)) {
+    stop(
+      "ggridges package needed for this function. Please install it.",
+      call. = FALSE
+    )
+  }
+  
+  grouping <- get_grouping(model, grouping)
+  probs <- c(.5 - level / 2, .5 + level / 2)
+  lwr <- paste0(probs[1]*100, "%ile")
+  upr <- paste0(probs[2]*100, "%ile")
+  
+  samples <- tidycoef(model,
+                      pars = pars,
+                      grouping = grouping)
+  samples_sum <- tidycoef(model,
+                          pars = pars,
+                          grouping = grouping,
+                          summary = T,
+                          level = level)
+  
+  # Rename average effects
+  samples[[grouping]] <- ifelse(is.na(samples[[grouping]]),
+                                av_name,
+                                samples[[grouping]])
+  samples_sum[[grouping]] <- ifelse(is.na(samples_sum[[grouping]]),
+                                    av_name,
+                                    samples_sum[[grouping]])
+  # Create text intervals
+  samples_sum[["Interval"]] <- paste0(
+    format(round(samples_sum[["Estimate"]], digits), nsmall = digits),
+    " [",
+    format(round(samples_sum[[lwr]], digits), nsmall = digits),
+    ", ",
+    format(round(samples_sum[[upr]], digits), nsmall = digits), "]"
+  )
+  # Order effects
+  if (sort) samples_sum <- dplyr::arrange_(samples_sum, "type", "Parameter", "Estimate")
+  samples_sum[["order"]] <- forcats::fct_inorder(
+    paste0(samples_sum[["type"]],
+           samples_sum[[grouping]],
+           samples_sum[["Parameter"]])
+  )
+  samples <- dplyr::left_join(
+    samples,
+    samples_sum[, c(grouping, "Parameter", "order")],
+    by = c(grouping, "Parameter")
+  )
+  # Create graph
+  g <- ggplot(samples_sum, aes_string("Estimate", "order")) +
+    scale_y_discrete(labels = samples_sum[[grouping]],
+                     breaks = samples_sum[["order"]]) +
+    geom_point()
+  if (density) {
+    g <- g + ggridges::geom_density_ridges(
+      data = samples,
+      aes_string(x="value"),
+      rel_min_height = rel_min_height,
+      scale = scale,
+      col = col_ridge,
+      fill = fill_ridge
+    ) +
+      geom_point()
+  }
+  g <- g + geom_segment(
+    aes_(
+      y = ~order,
+      yend = ~order,
+      x = as.name(lwr),
+      xend = as.name(upr)
+    )
+  )
+  if (text) {
+    g <- g +
+      geom_text(
+        data = samples_sum[samples_sum[["type"]] == "b", ],
+        aes_string(label = "Interval", x = "Inf"),
+        hjust = "inward", size = 5, fontface = "bold"
+      ) +
+      geom_text(
+        data = samples_sum[samples_sum[["type"]] == "r", ],
+        aes_string(label = "Interval", x = "Inf"),
+        hjust = "inward", size = 5
+      )
+  }
+  if (show_data & length(unique(samples_sum[["Parameter"]])) == 1) {
+    tmp <- dplyr::left_join(model$data, samples_sum[, c(grouping, "order")])
+    yname <- attr(attr(model$data, "terms"), "term.labels")[1]
+    sename <- attr(attr(model$data, "terms"), "term.labels")[2]
+    tmp$semin <- tmp[,yname] - tmp[,sename]
+    tmp$semax <- tmp[,yname] + tmp[,sename]
+    g <- g + geom_segment(
+      data = tmp,
+      aes_string(
+        x = "semin",
+        xend = "semax",
+        y = "order",
+        yend = "order"
+      ),
+      position = position_nudge(y=-.1)
+    )
+    g <- g + geom_point(
+      data = tmp,
+      aes_string(yname, y = "order"),
+      shape = 21, fill = "white",
+      position = position_nudge(y=-.1)
+    )
+  }
+  g <- g + facet_wrap("Parameter", scales="free", strip.position = "bottom")
+  if (theme_forest) g <- g + theme_forest()
+  g
+}
+
+h_nssi_thgts_antecedent <- hypothesis(model_nssi_thgts_antecedent, "NSSI_thgts1 > 0")
+plot_NSSI_thgts_antecedent_priorPosterior <- plot(h_nssi_thgts_antecedent)[[1]] +
+  scale_x_continuous(limits = c(-1.5,1.5), breaks = c(-1, -0.5, 0, 0.5, 1)) + 
+  theme_cowplot() +
+  labs(x = "Affect prior to the presence (vs absence) of NSSI thoughts") +
+  theme(axis.ticks.y = element_blank(), axis.text.y = element_blank(), text = element_text(size = 18), strip.background = element_blank(),
+        strip.text.x = element_blank())   
+plot_NSSI_thgts_antecedent_priorPosterior
+#ggsave("plot_NSSI_thgts_antecedent_priorPosterior.png", width = 12, height = 6, dpi = 600)
+
+
+effect_NSSI_thgts <- conditional_effects(model_nssi_thgts_antecedent, "NSSI_thgts")
+
+plot_NSSI_thgts_antecedent_effect <- plot(effect_NSSI_thgts, plot = FALSE)[[1]] +
+  aes(color = as.factor(cond__)) +
+  scale_color_manual(values = c("black")) +
+  scale_fill_manual(values = c("black")) +
+  scale_color_manual(values = c("black")) +
+  scale_y_continuous(limits = c(-0.5,0.5), breaks = c(-0.5, 0, 0.5)) + 
+  scale_x_discrete(labels = c("Absence", "Presence")) +
+  #scale_x_continuous(limits = c(-1,1), breaks = c(-5, -2.5, 0, 2.5, 5), labels = c(0, 25, 50, 75, 100)) + 
+  labs(x = "NSSI thoughts", y = "Prior negative affect") +
+  theme_cowplot() +
+  theme(legend.position = "none") +
+  theme(axis.ticks.y = element_blank(), text = element_text(size = 18), legend.position = "none")
+plot_NSSI_thgts_antecedent_effect
+#ggsave("plot_NSSI_thgts_antecedent_effect.png", width = 6, height = 6, dpi = 600)
+
+
+
+plot_NSSI_thgts_antecedent_forest <- forest(model_nssi_thgts_antecedent, pars = "NSSI_thgts1", av_name = "Average", sort = TRUE, theme_forest = FALSE, density = FALSE) +
+  scale_x_continuous(name = "Affect prior to the presence (vs absence) of NSSI thoughts",limits=c(-1, 1)) + theme_classic() + 
+  theme(axis.title.y = element_blank(), strip.text = element_blank(), text = element_text(size = 20, color = "black"))
+plot_NSSI_thgts_antecedent_forest 
+#ggsave("plot_NSSI_thgts_antecedent_forest .png", width = 12, height = 6, dpi = 600)
+
+
+###
+# CONSEQUENCE
+###
+
+data.nssi.thgts<-data.nssi.thgts %>% arrange(PID, time)
+
+data.nssi.thgts<-slide(data=data.nssi.thgts, Var="NSSI_thgts",TimeVar="time",GroupVar ="PID",NewVar="NSSI_thgts.lag",slideBy=-1)
+#data.nssi.thgts<-slide(data=data.nssi.thgts, Var="NA.standard.CWP",TimeVar="time",GroupVar ="PID",NewVar="NA.standard.CWP.lead",slideBy=1)
+data.nssi.thgts$NSSI_thgts.lag<- data.nssi.thgts$NSSI_thgts.lag-1
+#data.nssi.thgts.con<-subset(data.nssi.thgts, NSSI_thgts==1|NSSI_thgts.lead==1)
+
+#data.nssi.thgts.con$binary.time
+#data.nssi.thgts.con$binary.time[data.nssi.thgts.con$NSSI_thgts==0&data.nssi.thgts.con$NSSI_thgts.lead==1]<-1
+#data.nssi.thgts.con$binary.time[data.nssi.thgts.con$NSSI_thgts==1]<-0
+
+data.nssi.thgts$NSSI_thgts.lag <- as.factor(as.character(data.nssi.thgts$NSSI_thgts.lag))
+
+#data.nssi.thgts <- data.nssi.thgts %>%
+#  group_by(PID) %>%
+#  mutate(NSSI_thgts.pred = ifelse(data.nssi.thgts$Study == "Kiekens et al., 2020" | data.nssi.thgts$Study == "Kuehn et al., in Prep" | #data.nssi.thgts$Study == "Lear et al., 2019" | data.nssi.thgts$Study == "Bresin et al., 2013" | data.nssi.thgts$Study == "Hochard et al., #2015", lag(NSSI_thgts), NSSI_thgts))
+#data.nssi.thgts$NSSI_thgts.pred <- data.nssi.thgts$NSSI_thgts.pred - 1
+#data.nssi.thgts$NSSI_thgts.pred <- as.factor(as.character(data.nssi.thgts$NSSI_thgts.pred))
+
+data.nssi.thgts<-slide(data=data.nssi.thgts, Var="NSSI_thgts",TimeVar="time",GroupVar ="PID",NewVar="NSSI_thgts.lead",slideBy=1)
+data.nssi.thgts$NSSI_thgts.lead<- data.nssi.thgts$NSSI_thgts.lead-1
+data.nssi.thgts$NSSI_thgts.lead <- as.factor(as.character(data.nssi.thgts$NSSI_thgts.lead))
+
+
+data.nssi.thgts$logical <- ifelse(data.nssi.thgts$NSSI_thgts == 1 & lead(data.nssi.thgts$NSSI_thgts) == 0, 1, 0)
+data.nssi.thgts$logical <- ifelse(data.nssi.thgts$NSSI_thgts == 0 & lag(data.nssi.thgts$NSSI_thgts) == 1, 1, data.nssi.thgts$logical)
+
+data.nssi.thgts <- data.nssi.thgts[which(data.nssi.thgts$logical == 1),]
+
+data.nssi.thgts <- data.nssi.thgts %>%
+  group_by(PID) %>%
+  dplyr::mutate(pair = row_number()) %>%
+  dplyr::mutate(pair = ifelse(pair %% 2, pair, pair - 1))
+
+data.nssi.thgts$NSSI_thgts <- relevel(data.nssi.thgts$NSSI_thgts, ref = "1")
+
+prior2 <- c(set_prior("normal(0, 1)", class = "b", coef = "Intercept"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "NSSI_thgts0"), 
+                  set_prior("student_t(3,0,2.5)", class="sd"),
+                  set_prior("student_t(3,0,2.5", class="sigma"))
+
+model_nssi_thgts_consequence <-brm(NA.standard.CWP ~ 0 + Intercept + NSSI_thgts + ( 0 + Intercept + NSSI_thgts | Study/PID/pair), prior=prior2, data=data.nssi.thgts, control = list(adapt_delta = 0.99, max_treedepth=15),
+              sample_prior = TRUE, iter = 3000, chains = 4, backend = "cmdstanr", threads = threading(3))
+
+summary(model_nssi_thgts_consequence)
+
+### Rhats looking good, so do effective sample sizes
+
+pp_check(model_nssi_thgts_consequence) 
+
+h_nssi_thgts_consequence <- hypothesis(model_nssi_thgts_consequence, "NSSI_thgts0 < 0")
+plot_nssi_thgts_consequence_priorPosterior <- plot(h_nssi_thgts_consequence)[[1]] +
+  #scale_x_continuous(limits = c(-2.5,2.5), breaks = c(-2, -1, 0, 1, 2)) + 
+  theme_cowplot() +
+  labs(x = "Affect reported following (vs together with) NSSI thoughts") +
+  theme(axis.ticks.y = element_blank(), axis.text.y = element_blank(), text = element_text(size = 18), strip.background = element_blank(),
+        strip.text.x = element_blank())   
+plot_nssi_thgts_consequence_priorPosterior
+#ggsave("plot_nssi_thgts_consequence_priorPosterior.png", width = 12, height = 6, dpi = 600)
+
+effect_NSSI_time <- conditional_effects(model_nssi_thgts_consequence, "NSSI_thgts")
+
+labels_time <- c("Following", "Together with")
+
+plot_nssi_thgts_consequence_effect <- plot(effect_NSSI_time, plot = FALSE)[[1]] +
+  aes(color = as.factor(cond__)) +
+  scale_color_manual(values = c("black")) +
+  scale_fill_manual(values = c("black")) +
+  scale_color_manual(values = c("black")) +
+  scale_y_continuous(limits = c(-1,1), breaks = c(-1, -0.5, 0, 0.5, 1)) + 
+  scale_x_discrete(labels = labels_time) +
+  #scale_x_continuous(limits = c(-1,1), breaks = c(-5, -2.5, 0, 2.5, 5), labels = c(0, 25, 50, 75, 100)) + 
+  labs(x = "NSSI thoughts", y = "Negative affect") +
+  theme_cowplot() +
+  theme(legend.position = "none") +
+  theme(axis.ticks.y = element_blank(), text = element_text(size = 18), legend.position = "none")
+plot_nssi_thgts_consequence_effect
+#ggsave("plot_nssi_thgts_consequence_effect.png", width = 6, height = 6, dpi = 600)
+
+plot_nssi_thgts_consequence_forest <- forest(model_nssi_thgts_consequence, pars = "NSSI_thgts0", av_name = "Average", sort = TRUE, theme_forest = FALSE, density = FALSE) +
+  scale_x_continuous(name = "Affect reported following (vs together with) NSSI thoughts",limits=c(-3, 3)) + theme_classic() + 
+  theme(axis.title.y = element_blank(), strip.text = element_blank(), text = element_text(size = 20, color = "black"))
+plot_nssi_thgts_consequence_forest 
+ggsave("plot_nssi_thgts_consequence_forest.png", width = 12, height = 6, dpi = 600)
+
+#aggregate(.~ data.nssi.bhx$NSSI_bhx, data.nssi.bhx[7], mean) # 11.00/82.86
+
+```
+
+## NSSI Behaviors
+
+```{r}
+data.nssi.bhx <- read.table("data.nssi.bhx.csv", row.names = NULL, header = T, sep = ",", na.strings=c("","NA"))
+
+###
+# ANTECEDENT
+###
+
+data.nssi.bhx$PID<-as.numeric(data.nssi.bhx$PID)
+
+data.nssi.bhx$Study <- as.factor(as.character(data.nssi.bhx$Study))
+levels(data.nssi.bhx$Study) <- c("Armey et al., 2011", "Kiekens et al., 2020", "Kuehn et al., in prep", "Lear et al., 2019", "Muehlenkamp et al., 2009", "Santangelo et al., 2017", "Selby et al., 2013", "Bresin et al., 2013", "Selby et al., 2018", "Vansteelandt et al., 2017", "Wolford-Clevenger et al., 2019", "Czyz et al., 2017", "Hochard et al., 2015", "Houben et al., 2017")
+
+### need to turn this into a factor before fitting model!
+
+data.nssi.bhx$NSSI_bhx <- as.factor(as.character(data.nssi.bhx$NSSI_bhx))
+
+### weakly regularizing prior on fixed main effect
+
+prior <- c(set_prior("normal(0, 1)", class = "b", coef = "Intercept"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "NSSI_bhx1"), 
+                  set_prior("student_t(3,0,2.5)", class="sd"),
+                  set_prior("student_t(3,0,2.5", class="sigma"))
+
+model_nssi_bhx_antecedent <-brm(NA.standard.CWP.lag ~ 0 + Intercept + NSSI_bhx + ( 0 + Intercept | Study) + ( 0 + Intercept | Study:PID) + ( 0 + NSSI_bhx | Study) + ( 0 + NSSI_bhx | Study:PID), prior=prior, data=data.nssi.bhx, control = list(adapt_delta = 0.99, max_treedepth=20),
+              sample_prior = TRUE, iter = 3000, chains = 4, backend = "cmdstanr", threads = threading(3))
+
+summary(model_nssi_bhx_antecedent)
+
+pp_check(model_nssi_bhx_antecedent)
+
+h_nssi_bhx_antecedent <- hypothesis(model_nssi_bhx_antecedent, "NSSI_bhx1 > 0")
+plot_NSSI_bhx_antecedent_priorPosterior <- plot(h_nssi_bhx_antecedent)[[1]] +
+  scale_x_continuous(limits = c(-1.5,1.5), breaks = c(-1, -0.5, 0, 0.5, 1)) + 
+  theme_cowplot() +
+  labs(x = "Affect prior to the presence (vs absence) of NSSI behaviors") +
+  theme(axis.ticks.y = element_blank(), axis.text.y = element_blank(), text = element_text(size = 18), strip.background = element_blank(),
+        strip.text.x = element_blank())   
+plot_NSSI_bhx_antecedent_priorPosterior
+ggsave("plot_NSSI_bhx_antecedent_priorPosterior.png", width = 12, height = 6, dpi = 600)
+
+
+effect_NSSI_bhx <- conditional_effects(model_nssi_bhx_antecedent, "NSSI_bhx")
+
+plot_NSSI_bhx_antecedent_effect <- plot(effect_NSSI_bhx, plot = FALSE)[[1]] +
+  aes(color = as.factor(cond__)) +
+  scale_color_manual(values = c("black")) +
+  scale_fill_manual(values = c("black")) +
+  scale_color_manual(values = c("black")) +
+  scale_y_continuous(limits = c(-0.5,0.5), breaks = c(-0.5, 0, 0.5)) + 
+  scale_x_discrete(labels = c("Absence", "Presence")) +
+  #scale_x_continuous(limits = c(-1,1), breaks = c(-5, -2.5, 0, 2.5, 5), labels = c(0, 25, 50, 75, 100)) + 
+  labs(x = "NSSI behaviors", y = "Prior negative affect") +
+  theme_cowplot() +
+  theme(legend.position = "none") +
+  theme(axis.ticks.y = element_blank(), text = element_text(size = 18), legend.position = "none")
+plot_NSSI_bhx_antecedent_effect
+#ggsave("plot_NSSI_bhx_antecedent_effect.png", width = 6, height = 6, dpi = 600)
+
+
+
+plot_NSSI_bhx_antecedent_forest <- forest(model_nssi_bhx_antecedent, pars = "NSSI_bhx1", av_name = "Average", sort = TRUE, theme_forest = FALSE, density = FALSE) +
+  scale_x_continuous(name = "Affect prior to the presence (vs absence) of NSSI behaviors",limits=c(-1, 1)) + theme_classic() + 
+  theme(axis.title.y = element_blank(), strip.text = element_blank(), text = element_text(size = 20, color = "black"))
+plot_NSSI_bhx_antecedent_forest 
+#ggsave("plot_NSSI_bhx_antecedent_forest .png", width = 12, height = 6, dpi = 600)
+
+###
+# CONSEQUENCE
+###
+
+data.nssi.bhx<-data.nssi.bhx %>% arrange(PID, time)
+
+data.nssi.bhx<-slide(data=data.nssi.bhx, Var="NSSI_bhx",TimeVar="time",GroupVar ="PID",NewVar="NSSI_bhx.lag",slideBy=-1)
+#data.nssi.bhx<-slide(data=data.nssi.bhx, Var="NA.standard.CWP",TimeVar="time",GroupVar ="PID",NewVar="NA.standard.CWP.lead",slideBy=1)
+data.nssi.bhx$NSSI_bhx.lag<- data.nssi.bhx$NSSI_bhx.lag-1
+#data.nssi.bhx.con<-subset(data.nssi.bhx, NSSI_bhx==1|NSSI_bhx.lead==1)
+
+#data.nssi.bhx.con$binary.time
+#data.nssi.bhx.con$binary.time[data.nssi.bhx.con$NSSI_bhx==0&data.nssi.bhx.con$NSSI_bhx.lead==1]<-1
+#data.nssi.bhx.con$binary.time[data.nssi.bhx.con$NSSI_bhx==1]<-0
+
+data.nssi.bhx$NSSI_bhx.lag <- as.factor(as.character(data.nssi.bhx$NSSI_bhx.lag))
+
+#data.nssi.bhx <- data.nssi.bhx %>%
+#  group_by(PID) %>%
+#  mutate(NSSI_bhx.pred = ifelse(data.nssi.bhx$Study == "Kiekens et al., 2020" | data.nssi.bhx$Study == "Kuehn et al., in Prep" | #data.nssi.bhx$Study == "Lear et al., 2019" | data.nssi.bhx$Study == "Bresin et al., 2013" | data.nssi.bhx$Study == "Hochard et al., #2015", lag(NSSI_bhx), NSSI_bhx))
+#data.nssi.bhx$NSSI_bhx.pred <- data.nssi.bhx$NSSI_bhx.pred - 1
+#data.nssi.bhx$NSSI_bhx.pred <- as.factor(as.character(data.nssi.bhx$NSSI_bhx.pred))
+
+data.nssi.bhx<-slide(data=data.nssi.bhx, Var="NSSI_bhx",TimeVar="time",GroupVar ="PID",NewVar="NSSI_bhx.lead",slideBy=1)
+data.nssi.bhx$NSSI_bhx.lead<- data.nssi.bhx$NSSI_bhx.lead-1
+data.nssi.bhx$NSSI_bhx.lead <- as.factor(as.character(data.nssi.bhx$NSSI_bhx.lead))
+
+
+data.nssi.bhx$logical <- ifelse(data.nssi.bhx$NSSI_bhx == 1 & lead(data.nssi.bhx$NSSI_bhx) == 0, 1, 0)
+data.nssi.bhx$logical <- ifelse(data.nssi.bhx$NSSI_bhx == 0 & lag(data.nssi.bhx$NSSI_bhx) == 1, 1, data.nssi.bhx$logical)
+
+data.nssi.bhx <- data.nssi.bhx[which(data.nssi.bhx$logical == 1),]
+
+data.nssi.bhx <- data.nssi.bhx %>%
+  group_by(PID) %>%
+  dplyr::mutate(pair = row_number()) %>%
+  dplyr::mutate(pair = ifelse(pair %% 2, pair, pair - 1))
+
+data.nssi.bhx$NSSI_bhx <- relevel(data.nssi.bhx$NSSI_bhx, ref = "1")
+
+
+prior2 <- c(set_prior("normal(0, 1)", class = "b", coef = "Intercept"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "NSSI_bhx0"), 
+                  set_prior("student_t(3,0,2.5)", class="sd"),
+                  set_prior("student_t(3,0,2.5", class="sigma"))
+
+model_NSSI_bhx_consequence <-brm(NA.standard.CWP ~ 0 + Intercept + NSSI_bhx + ( 0 + Intercept + NSSI_bhx | Study/PID/pair), prior=prior2, data=data.nssi.bhx, control = list(adapt_delta = 0.99, max_treedepth=25),
+              sample_prior = TRUE, iter = 4000, chains = 4, backend = "cmdstanr", threads = threading(3))
+
+summary(model_NSSI_bhx_consequence)
+
+h_nssi_bhx_consequence <- hypothesis(model_NSSI_bhx_consequence, "NSSI_bhx0 < 0")
+plot_nssi_bhx_consequence_priorPosterior <- plot(h_nssi_bhx_consequence)[[1]] +
+  #scale_x_continuous(limits = c(-2.5,2.5), breaks = c(-2, -1, 0, 1, 2)) + 
+  theme_cowplot() +
+  labs(x = "Affect reported following (vs together with) NSSI behaviors") +
+  theme(axis.ticks.y = element_blank(), axis.text.y = element_blank(), text = element_text(size = 18), strip.background = element_blank(),
+        strip.text.x = element_blank())   
+plot_nssi_bhx_consequence_priorPosterior
+#ggsave("plot_nssi_bhx_consequence_priorPosterior.png", width = 12, height = 6, dpi = 600)
+
+effect_NSSI_time <- conditional_effects(model_NSSI_bhx_consequence, "NSSI_bhx")
+
+labels_time <- c("Following", "Together with")
+
+plot_nssi_bhx_consequence_effect <- plot(effect_NSSI_time, plot = FALSE)[[1]] +
+  aes(color = as.factor(cond__)) +
+  scale_color_manual(values = c("black")) +
+  scale_fill_manual(values = c("black")) +
+  scale_color_manual(values = c("black")) +
+  scale_y_continuous(limits = c(-1,1), breaks = c(-1, -0.5, 0, 0.5, 1)) + 
+  scale_x_discrete(labels = labels_time) +
+  #scale_x_continuous(limits = c(-1,1), breaks = c(-5, -2.5, 0, 2.5, 5), labels = c(0, 25, 50, 75, 100)) + 
+  labs(x = "NSSI behaviors", y = "Negative affect") +
+  theme_cowplot() +
+  theme(legend.position = "none") +
+  theme(axis.ticks.y = element_blank(), text = element_text(size = 18), legend.position = "none")
+plot_nssi_bhx_consequence_effect
+#ggsave("plot_nssi_bhx_consequence_effect.png", width = 6, height = 6, dpi = 600)
+
+plot_nssi_bhx_consequence_forest <- forest(model_NSSI_bhx_consequence, pars = "NSSI_bhx0", av_name = "Average", sort = TRUE, theme_forest = FALSE, density = FALSE) +
+  scale_x_continuous(name = "Affect reported following (vs together with) NSSI behaviors",limits=c(-3, 3)) + theme_classic() + 
+  theme(axis.title.y = element_blank(), strip.text = element_blank(), text = element_text(size = 20, color = "black"))
+plot_nssi_bhx_consequence_forest 
+#ggsave("plot_nssi_bhx_consequence_forest.png", width = 12, height = 6, dpi = 600)
+
+```
+
+## Suicidal Thoughts
+
+```{r}
+data.sui.thgts <- read.table("data.sui.thgts.csv", row.names = NULL, header = T, sep = ",", na.strings=c("","NA"))
+
+#data.sui.thgts<-rbind(armey.bhx,bres.bhx, czyz.bhx, hochard.nssi.bhx, houb.nssi.bhx, kiekens.bhx,kuehn.bhx,lear.bhx, muehl.bhx, san.bhx, selby13.bhx,selby18.bhx, van.bhx, wolford.bhx)
+
+###
+# ANTECEDENT
+###
+
+#data.sui.thgts$NA.standard[data.sui.thgts$NA.standard=="NaN"]<-NA
+
+#CVP <- within(data.sui.thgts, {
+#  NA.standard.CWP<-ave(data.sui.thgts$NA.standard, data.sui.thgts$PID, FUN=function(x) x-mean(x, na.rm=T))
+#})
+
+#data.sui.thgts$NA.standard.CWP<-CVP$NA.standard.CWP
+
+#grpmeans2<-aggregate(data.sui.thgts$NA.standard,list(data.sui.thgts$PID),mean,na.rm=TRUE)
+#names(grpmeans2)<-c("PID","NA.standard.GMC")
+#data.sui.thgts<-merge(data.sui.thgts,grpmeans2,by="PID")
+
+#data.sui.thgts<-data.sui.thgts %>% arrange(PID, time)
+
+#data.sui.thgts<-slide(data=data.sui.thgts, Var="NA.standard.CWP",TimeVar="time",GroupVar ="PID",NewVar="NA.standard.CWP.lag",slideBy=-1)
+
+data.sui.thgts$PID<-as.numeric(data.sui.thgts$PID)
+
+data.sui.thgts$Study <- as.factor(as.character(data.sui.thgts$Study))
+
+levels(data.sui.thgts$Study) <- c("Kiekens et al., 2020", "Kleiman et al., 2017", "Kleiman et al., 2018", "Kuehn et al., in prep", "Peters et al., 2020", "Salim et al., 2019", "Bresin et al., 2013", "Wolford-Clevenger et al., 2019", "Czyz et al., 2017", "Forkmann et al., 2018", "Husky et al., 2017", "Kaurin et al., under review", "Kaurin et al., 2020")
+
+### need to turn this into a factor before fitting model!
+
+data.sui.thgts$suicidal_thgts <- as.factor(as.character(data.sui.thgts$suicidal_thgts))
+
+### weakly regularizing prior on fixed main effect
+
+prior <- c(set_prior("normal(0, 1)", class = "b", coef = "Intercept"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "suicidal_thgts1"), 
+                  set_prior("student_t(3,0,2.5)", class="sd"),
+                  set_prior("student_t(3,0,2.5", class="sigma"))
+
+model_sui_thgts_antecedent <-brm(NA.standard.CWP.lag ~ 0 + Intercept + suicidal_thgts + ( 0 + Intercept | Study) + ( 0 + Intercept | Study:PID) + ( 0 + suicidal_thgts | Study) + ( 0 + suicidal_thgts | Study:PID), prior=prior, data=data.sui.thgts, control = list(adapt_delta = 0.99, max_treedepth=15),
+              sample_prior = TRUE, iter = 3000, chains = 4, backend = "cmdstanr", threads = threading(3))
+
+summary(model_sui_thgts_antecedent)
+
+pp_check(model_sui_thgts_antecedent)
+
+h_sui_thgts_antecedent <- hypothesis(model_sui_thgts_antecedent, "suicidal_thgts1 > 0")
+plot_sui_thgts_antecedent_priorPosterior <- plot(h_sui_thgts_antecedent)[[1]] +
+  scale_x_continuous(limits = c(-1.5,1.5), breaks = c(-1, -0.5, 0, 0.5, 1)) + 
+  theme_cowplot() +
+  labs(x = "Affect prior to the presence (vs absence) of suicidal thoughts") +
+  theme(axis.ticks.y = element_blank(), axis.text.y = element_blank(), text = element_text(size = 18), strip.background = element_blank(),
+        strip.text.x = element_blank())   
+plot_sui_thgts_antecedent_priorPosterior
+#ggsave("plot_sui_thgts_antecedent_priorPosterior.png", width = 12, height = 6, dpi = 600)
+
+
+effect_sui_thgts <- conditional_effects(model_sui_thgts_antecedent, "suicidal_thgts")
+
+plot_sui_thgts_antecedent_effect <- plot(effect_sui_thgts, plot = FALSE)[[1]] +
+  aes(color = as.factor(cond__)) +
+  scale_color_manual(values = c("black")) +
+  scale_fill_manual(values = c("black")) +
+  scale_color_manual(values = c("black")) +
+  scale_y_continuous(limits = c(-0.5,0.5), breaks = c(-0.5, 0, 0.5)) + 
+  scale_x_discrete(labels = c("Absence", "Presence")) +
+  #scale_x_continuous(limits = c(-1,1), breaks = c(-5, -2.5, 0, 2.5, 5), labels = c(0, 25, 50, 75, 100)) + 
+  labs(x = "Suicidal thoughts", y = "Prior negative affect") +
+  theme_cowplot() +
+  theme(legend.position = "none") +
+  theme(axis.ticks.y = element_blank(), text = element_text(size = 18), legend.position = "none")
+plot_sui_thgts_antecedent_effect
+#ggsave("plot_sui_thgts_antecedent_effect.png", width = 6, height = 6, dpi = 600)
+
+
+
+plot_sui_thgts_antecedent_forest <- forest(model_sui_thgts_antecedent, pars = "suicidal_thgts1", av_name = "Average", sort = TRUE, theme_forest = FALSE, density = FALSE) +
+  scale_x_continuous(name = "Affect prior to the presence (vs absence) of suicidal thoughts",limits=c(-1, 1)) + theme_classic() + 
+  theme(axis.title.y = element_blank(), strip.text = element_blank(), text = element_text(size = 20, color = "black"))
+plot_sui_thgts_antecedent_forest 
+#ggsave("plot_sui_thgts_antecedent_forest .png", width = 12, height = 6, dpi = 600)
+
+save.image("antecedent.RData")
+
+###
+# CONSEQUENCE
+###
+
+data.sui.thgts<-data.sui.thgts %>% arrange(PID, time)
+
+data.sui.thgts<-slide(data=data.sui.thgts, Var="suicidal_thgts",TimeVar="time",GroupVar ="PID",NewVar="suicidal_thgts.lag",slideBy=-1)
+data.sui.thgts<-slide(data=data.sui.thgts, Var="NA.standard.CWP",TimeVar="time",GroupVar ="PID",NewVar="NA.standard.CWP.lead",slideBy=1)
+data.sui.thgts$suicidal_thgts.lag<- data.sui.thgts$suicidal_thgts.lag-1
+#data.sui.thgts.con<-subset(data.sui.thgts, suicidal_thgts==1|suicidal_thgts.lead==1)
+
+#data.sui.thgts.con$binary.time
+#data.sui.thgts.con$binary.time[data.sui.thgts.con$suicidal_thgts==0&data.sui.thgts.con$suicidal_thgts.lead==1]<-1
+#data.sui.thgts.con$binary.time[data.sui.thgts.con$suicidal_thgts==1]<-0
+
+data.sui.thgts$suicidal_thgts.lag <- as.factor(as.character(data.sui.thgts$suicidal_thgts.lag))
+
+#data.sui.thgts <- data.sui.thgts %>%
+#  group_by(PID) %>%
+#  mutate(suicidal_thgts.pred = ifelse(data.sui.thgts$Study == "Kiekens et al., 2020" | data.sui.thgts$Study == "Kuehn et al., in Prep" | #data.sui.thgts$Study == "Lear et al., 2019" | data.sui.thgts$Study == "Bresin et al., 2013" | data.sui.thgts$Study == "Hochard et al., #2015", lag(suicidal_thgts), suicidal_thgts))
+#data.sui.thgts$suicidal_thgts.pred <- data.sui.thgts$suicidal_thgts.pred - 1
+#data.sui.thgts$suicidal_thgts.pred <- as.factor(as.character(data.sui.thgts$suicidal_thgts.pred))
+
+data.sui.thgts<-slide(data=data.sui.thgts, Var="suicidal_thgts",TimeVar="time",GroupVar ="PID",NewVar="suicidal_thgts.lead",slideBy=1)
+data.sui.thgts$suicidal_thgts.lead<- data.sui.thgts$suicidal_thgts.lead-1
+data.sui.thgts$suicidal_thgts.lead <- as.factor(as.character(data.sui.thgts$suicidal_thgts.lead))
+
+
+data.sui.thgts$logical <- ifelse(data.sui.thgts$suicidal_thgts == 1 & lead(data.sui.thgts$suicidal_thgts) == 0, 1, 0)
+data.sui.thgts$logical <- ifelse(data.sui.thgts$suicidal_thgts == 0 & lag(data.sui.thgts$suicidal_thgts) == 1, 1, data.sui.thgts$logical)
+
+data.sui.thgts <- data.sui.thgts[which(data.sui.thgts$logical == 1),]
+
+data.sui.thgts <- data.sui.thgts %>%
+  group_by(PID) %>%
+  dplyr::mutate(pair = row_number()) %>%
+  dplyr::mutate(pair = ifelse(pair %% 2, pair, pair - 1))
+
+data.sui.thgts$suicidal_thgts <- relevel(data.sui.thgts$suicidal_thgts, ref = "1")
+
+prior2 <- c(set_prior("normal(0, 1)", class = "b", coef = "Intercept"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "suicidal_thgts0"), 
+                  set_prior("student_t(3,0,2.5)", class="sd"),
+                  set_prior("student_t(3,0,2.5", class="sigma"))
+
+model_suicidal_thgts_consequence <-brm(NA.standard.CWP ~ 0 + Intercept + suicidal_thgts + ( 0 + Intercept + suicidal_thgts | Study/PID/pair), prior=prior2, data=data.sui.thgts, control = list(adapt_delta = 0.99, max_treedepth=15),
+              sample_prior = TRUE, iter = 3000, chains = 4, backend = "cmdstanr", threads = threading(3))
+
+summary(model_suicidal_thgts_consequence)
+
+h_nssi_suicidal_thgts_consequence <- hypothesis(model_suicidal_thgts_consequence, "suicidal_thgts0 < 0")
+plot_suicidal_thgts_consequence_priorPosterior <- plot(h_nssi_suicidal_thgts_consequence)[[1]] +
+  #scale_x_continuous(limits = c(-2.5,2.5), breaks = c(-2, -1, 0, 1, 2)) + 
+  theme_cowplot() +
+  labs(x = "Affect reported following (vs together with) suicidal thoughts") +
+  theme(axis.ticks.y = element_blank(), axis.text.y = element_blank(), text = element_text(size = 18), strip.background = element_blank(),
+        strip.text.x = element_blank())   
+plot_suicidal_thgts_consequence_priorPosterior
+#ggsave("plot_suicidal_thgts_consequence_priorPosterior.png", width = 12, height = 6, dpi = 600)
+
+effect_sui_time <- conditional_effects(model_suicidal_thgts_consequence, "suicidal_thgts")
+
+labels_time <- c("Following", "Together with")
+
+plot_suicidal_thgts_consequence_effect <- plot(effect_sui_time, plot = FALSE)[[1]] +
+  aes(color = as.factor(cond__)) +
+  scale_color_manual(values = c("black")) +
+  scale_fill_manual(values = c("black")) +
+  scale_color_manual(values = c("black")) +
+  scale_y_continuous(limits = c(-1,1), breaks = c(-1, -0.5, 0, 0.5, 1)) + 
+  scale_x_discrete(labels = labels_time) +
+  #scale_x_continuous(limits = c(-1,1), breaks = c(-5, -2.5, 0, 2.5, 5), labels = c(0, 25, 50, 75, 100)) + 
+  labs(x = "Suicidal thoughts", y = "Negative affect") +
+  theme_cowplot() +
+  theme(legend.position = "none") +
+  theme(axis.ticks.y = element_blank(), text = element_text(size = 18), legend.position = "none")
+plot_suicidal_thgts_consequence_effect
+#ggsave("plot_suicidal_thgts_consequence_effect.png", width = 6, height = 6, dpi = 600)
+
+plot_suicidal_thgts_consequence_forest <- forest(model_suicidal_thgts_consequence, pars = "suicidal_thgts0", av_name = "Average", sort = TRUE, theme_forest = FALSE, density = FALSE) +
+  scale_x_continuous(name = "Affect reported following (vs together with) suicidal thoughts",limits=c(-3, 3)) + theme_classic() + 
+  theme(axis.title.y = element_blank(), strip.text = element_blank(), text = element_text(size = 20, color = "black"))
+plot_suicidal_thgts_consequence_forest 
+#ggsave("plot_suicidal_thgts_consequence_forest.png", width = 12, height = 6, dpi = 600)
+
+save.image("consequence.RData")
+load("consequence.RData")
+```
+```{r}
+
+### moderator analyses
+
+data.nssi.thgts$prompts.per.day <- ifelse(data.nssi.thgts$Study == "Kiekens et al., 2020", 8, ifelse(
+  data.nssi.thgts$Study == "Kuehn et al., in Prep", 5, ifelse(
+    data.nssi.thgts$Study == "Lear et al., 2019", 1, ifelse(
+      data.nssi.thgts$Study == "Bresin et al., 2013", 1, ifelse(
+        data.nssi.thgts$Study == "Selby et al., 2018", 5, 2
+      )
+    )
+  )
+))
+
+data.nssi.thgts$prompts.per.day <- scale(data.nssi.thgts$prompts.per.day, center = T, scale = F)
+
+prior <- c(set_prior("normal(0, 1)", class = "b", coef = "Intercept"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "NSSI_thgts1"), 
+                  set_prior("normal(0, 0.5)", class = "b", coef = "prompts.per.day"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "NSSI_thgts1:prompts.per.day"),
+                  set_prior("student_t(3,0,2.5)", class="sd"),
+                  set_prior("student_t(3,0,2.5", class="sigma"))
+
+model_nssi_thgts_antecedent_prompts <-brm(NA.standard.CWP.lag ~ 0 + Intercept + NSSI_thgts*prompts.per.day + ( 0 + Intercept | Study) + ( 0 + Intercept | Study:PID) + ( 0 + NSSI_thgts | Study) + ( 0 + NSSI_thgts | Study:PID), prior=prior, data=data.nssi.thgts, control = list(adapt_delta = 0.99, max_treedepth=15),
+              sample_prior = TRUE, iter = 6000, chains = 4, backend = "cmdstanr", threads = threading(9))
+
+summary(model_nssi_thgts_antecedent_prompts)
+
+data.nssi.bhx$prompts.per.day <- ifelse(data.nssi.bhx$Study == "Armey et al., 2011", 6, ifelse(
+  data.nssi.bhx$Study == "Kiekens et al., 2020", 8, ifelse(
+  data.nssi.bhx$Study == "Kuehn et al., in Prep", 5, ifelse(
+    data.nssi.bhx$Study == "Lear et al., 2019", 1, ifelse(
+      data.nssi.bhx$Study == "Muehlenkamp et al., 2009", 6, ifelse(
+        data.nssi.bhx$Study == "Santangelo et al., 2017", 12, ifelse(
+          data.nssi.bhx$Study == "Selby et al., 2013", 5, ifelse(
+            data.nssi.bhx$Study == "Bresin et al., 2013", 1, ifelse(            
+              data.nssi.bhx$Study == "Selby et al., 2018", 5, ifelse(
+                data.nssi.bhx$Study == "Vansteelandt et al., 2017", 10, ifelse(
+                  data.nssi.bhx$Study == "Wolford-Clevenger et al., 2019", 1, ifelse(
+                    data.nssi.bhx$Study == "Czyz et al., 2017", 1, ifelse(
+                      data.nssi.bhx$Study == "Hochard et al., 2015", 2, 10)
+                    )
+                  )
+                )
+              )
+          )
+        )
+      )
+      )
+    )
+  )
+  )
+)
+
+data.nssi.bhx$prompts.per.day <- scale(data.nssi.bhx$prompts.per.day, center = T, scale = F)
+
+prior <- c(set_prior("normal(0, 1)", class = "b", coef = "Intercept"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "NSSI_bhx1"), 
+                  set_prior("normal(0, 0.5)", class = "b", coef = "prompts.per.day"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "NSSI_bhx1:prompts.per.day"),
+                  set_prior("student_t(3,0,2.5)", class="sd"),
+                  set_prior("student_t(3,0,2.5", class="sigma"))
+
+model_NSSI_bhx_antecedent_prompts <-brm(NA.standard.CWP.lag ~ 0 + Intercept + NSSI_bhx*prompts.per.day + ( 0 + Intercept | Study) + ( 0 + Intercept | Study:PID) + ( 0 + NSSI_bhx | Study) + ( 0 + NSSI_bhx | Study:PID), prior=prior, data=data.nssi.bhx, control = list(adapt_delta = 0.99, max_treedepth=15),
+              sample_prior = TRUE, iter = 6000, chains = 4, backend = "cmdstanr", threads = threading(9))
+
+summary(model_NSSI_bhx_antecedent_prompts)
+
+data.sui.thgts$prompts.per.day <- ifelse(data.sui.thgts$Study == "Kiekens et al., 2020", 8, ifelse(
+  data.sui.thgts$Study == "Kleiman et al., 2017", 2, ifelse(
+    data.sui.thgts$Study == "Kleiman et al., 2018", 4, ifelse(
+        data.sui.thgts$Study == "Kuehn et al., in Prep", 5, ifelse(
+          data.sui.thgts$Study == "Peters et al., 2020", 3, ifelse(
+            data.sui.thgts$Study == "Salim et al., 2019", 1, ifelse(
+              data.sui.thgts$Study == "Bresin et al., 2013", 1, ifelse(
+                data.sui.thgts$Study == "Wolford-Clevenger et al., 2019", 1, ifelse(
+                  data.sui.thgts$Study == "Czyz et al., 2017", 1, ifelse(
+                    data.sui.thgts$Study == "Forkmann et al., 2018", 10, ifelse(
+                      data.sui.thgts$Study == "Husky et al., 2017", 5, ifelse(
+                        data.sui.thgts$Study == "Kaurin et al., under review", 6, 6)
+                      )
+                  )
+                )
+            )
+          )
+    )
+  )
+      )
+    )
+  )
+)
+
+data.sui.thgts$prompts.per.day <- scale(data.sui.thgts$prompts.per.day, center = T, scale = F)
+
+prior <- c(set_prior("normal(0, 1)", class = "b", coef = "Intercept"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "suicidal_thgts1"), 
+                  set_prior("normal(0, 0.5)", class = "b", coef = "prompts.per.day"),
+                  set_prior("normal(0, 0.5)", class = "b", coef = "suicidal_thgts1:prompts.per.day"),
+                  set_prior("student_t(3,0,2.5)", class="sd"),
+                  set_prior("student_t(3,0,2.5", class="sigma"))
+
+model_suicidal_thgts_antecedent_prompts <-brm(NA.standard.CWP.lag ~ 0 + Intercept + suicidal_thgts*prompts.per.day + ( 0 + Intercept | Study) + ( 0 + Intercept | Study:PID) + ( 0 + suicidal_thgts | Study) + ( 0 + suicidal_thgts | Study:PID), prior=prior, data=data.sui.thgts, control = list(adapt_delta = 0.99, max_treedepth=15),
+              sample_prior = TRUE, iter = 6000, chains = 4, backend = "cmdstanr", threads = threading(9))
+
+summary(model_suicidal_thgts_antecedent_prompts)
+
+```
