@@ -7,7 +7,7 @@ Meta analysis of NA-SITB association
 RMarkdown file for cleaning individual datasets.  
 
 ## Processing and Analysis Scripts.Rmd:
-RMarkdwon file that contains scripts for processing individual data files and analayzing main antecedent and consequence analyses. 
+RMarkdown file that contains scripts for processing individual data files and analyzing main antecedent and consequence analyses. 
 
 ## data/ 
 Data files to run analyses
